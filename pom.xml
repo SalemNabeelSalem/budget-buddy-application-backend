@@ -51,6 +51,16 @@
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
 
+		<!--
+		 	Provides support for Spring Security, including authentication and authorization.
+			Integrates with Spring MVC and other Spring components.
+			Includes features such as password encoding, CSRF protection, and method-level security.
+		-->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-security</artifactId>
+		</dependency>
+
 		<!-- Connect to MySQL database using the MySQL Connector/J JDBC driver. -->
 		<dependency>
 			<groupId>com.mysql</groupId>
