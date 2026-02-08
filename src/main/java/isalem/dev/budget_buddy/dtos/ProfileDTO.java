@@ -11,6 +11,10 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+/*
+ * This DTO is used for both registration and profile retrieval.
+ * It contains all the necessary fields for both operations.
+ */
 public class ProfileDTO {
 
     private Long id;

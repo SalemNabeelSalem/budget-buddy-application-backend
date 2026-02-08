@@ -1,8 +1,12 @@
 package isalem.dev.budget_buddy.configs;
 
+import isalem.dev.budget_buddy.services.AppUserDetailsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.ProviderManager;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -20,7 +24,9 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    /**
+    private final AppUserDetailsService appUserDetailsService;
+
+    /*
      * ✔️ Declares a Spring bean:
      *  - This tells Spring to create and manage a SecurityFilterChain object —
      *    the core of Spring Security’s HTTP protection.
@@ -44,7 +50,7 @@ public class SecurityConfig {
      *  - this configuration sets up a secure foundation for your REST API,
      *    allowing unauthenticated access to specific endpoints while protecting the rest of your API with authentication.
      *  - It also ensures that your API is stateless and can be accessed from different origins (like a frontend app).
-     * */
+     */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http // Configure HTTP security
@@ -55,7 +61,7 @@ public class SecurityConfig {
                                 "/status", // Health check endpoint
                                 "/health", // Another health check endpoint
                                 "/profiles/register", // Endpoint for user registration
-                                "/profiles/activate", // Endpoint for account activation
+                                "/profiles/activate", // Endpoint for profile activation
                                 "/profiles/login" // Endpoint for user login
                         ).permitAll() // Allow unauthenticated access to the above endpoints
                         .anyRequest().authenticated() // Require authentication for all other endpoints
@@ -88,5 +94,16 @@ public class SecurityConfig {
          source.registerCorsConfiguration("/**", configuration); // Apply CORS configuration to all endpoints
 
          return source;
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager() {
+        DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
+
+        authenticationProvider.setUserDetailsService(appUserDetailsService);
+
+        authenticationProvider.setPasswordEncoder(passwordEncoder());
+
+        return new ProviderManager(authenticationProvider);
     }
 }

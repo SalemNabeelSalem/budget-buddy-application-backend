@@ -1,16 +1,25 @@
 package isalem.dev.budget_buddy.services;
 
+import isalem.dev.budget_buddy.dtos.AuthDTO;
 import isalem.dev.budget_buddy.dtos.ProfileDTO;
 import isalem.dev.budget_buddy.entities.ProfileEntity;
 import isalem.dev.budget_buddy.repositories.ProfileRepository;
+import isalem.dev.budget_buddy.utils.JWTUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Map;
 import java.util.UUID;
 
-/**
+/*
  * Marks this class as a Spring service component, making it eligible for component scanning and dependency injection.
- * */
+ */
 @Service //
 @RequiredArgsConstructor // Lombok annotation to generate a constructor with required arguments (final fields)
 public class ProfileService {
@@ -18,6 +27,12 @@ public class ProfileService {
     private final ProfileRepository profileRepository;
 
     private final EmailService emailService;
+
+    private final PasswordEncoder passwordEncoder;
+
+    private final AuthenticationManager authenticationManager;
+
+    private final JWTUtil jwtUtil;
 
     public ProfileDTO registerNewProfile(ProfileDTO profileDTO) {
         ProfileEntity newProfileEntity = toProfileEntity(profileDTO);
@@ -31,16 +46,16 @@ public class ProfileService {
          **/
         String activationLink = "http://localhost:8080/api/v1.0/profiles/activate?token=" + newProfileEntity.getActivationToken();
 
-        String emailSubject = "Activate Your Budget Buddy Account";
+        String emailSubject = "Activate Your Budget Buddy Profile";
 
-        // String emailBody = "Welcome to Budget Buddy! Please activate your account by clicking the following link: " + activationLink;
+        // String emailBody = "Welcome to Budget Buddy! Please activate your profile by clicking the following link: " + activationLink;
 
         String htmlEmailTemplate = """
             <!DOCTYPE html>
             <html>
             <head>
                 <meta charset="UTF-8">
-                <title>Activate your Budget Buddy account</title>
+                <title>Activate your Budget Buddy profile</title>
                 <style>
                     body { font-family: Arial, sans-serif; background-color: #f4f6f8; margin: 0; padding: 0; }
                     .container { max-width: 600px; margin: 10px auto; background-color: #ffffff; border-radius: 8px;
@@ -65,13 +80,13 @@ public class ProfileService {
                     <p>Hi,</p>
                     <p>
                         Thanks for signing up for <strong>Budget Buddy</strong>!
-                        To activate your account and start tracking your finances, please confirm your email address.
+                        To activate your profile and start tracking your finances, please confirm your email address.
                     </p>
                     <div class="btn-wrapper">
-                        <a href="%s" class="btn">Activate my account</a>
+                        <a href="%s" class="btn">Activate my profile</a>
                     </div>
                     <p>
-                        If you didn’t create this account, you can safely ignore this email.
+                        If you didn’t create this profile, you can safely ignore this email.
                     </p>
                 </div>
                 <div class="footer">
@@ -93,7 +108,7 @@ public class ProfileService {
         return ProfileEntity.builder()
                 .fullName(profileDTO.getFullName())
                 .email(profileDTO.getEmail())
-                .password(profileDTO.getPassword())
+                .password(passwordEncoder.encode(profileDTO.getPassword()))
                 .profileImageUrl(profileDTO.getProfileImageUrl())
                 .createdAt(profileDTO.getCreatedAt())
                 .updatedAt(profileDTO.getUpdatedAt())
@@ -120,5 +135,55 @@ public class ProfileService {
                     return true;
                 })
                 .orElse(false);
+    }
+
+    public boolean isProfileActivated(String email) {
+        return profileRepository.findByEmail(email)
+                .map(ProfileEntity::getIsActive)
+                .orElse(false);
+    }
+
+    public ProfileEntity getCurrentProfile() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        return profileRepository.findByEmail(authentication.getName())
+                .orElseThrow(
+                        () -> new UsernameNotFoundException("Profile not found for email: " + authentication.getName())
+                );
+    }
+
+    public ProfileDTO getCurrentPublicProfile(String email) {
+        ProfileEntity currentProfile = null;
+
+        if (email == null || email.isEmpty()) {
+            currentProfile = getCurrentProfile();
+        } else {
+            currentProfile = profileRepository.findByEmail(email)
+                    .orElseThrow(
+                            () -> new UsernameNotFoundException("Profile not found for email: " + email)
+                    );
+        }
+
+        return toProfileDTO(currentProfile);
+    }
+
+    public Map<String, Object> authenticateAndGenerateToken(AuthDTO authDto) {
+        try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            authDto.getEmail(),
+                            authDto.getPassword()
+                    )
+            );
+
+            String jwtToken = jwtUtil.generateToken(authDto.getEmail());
+
+            return Map.of(
+                    "token", jwtToken,
+                    "user", getCurrentPublicProfile(authDto.getEmail())
+            );
+        } catch (Exception e) {
+            throw new RuntimeException("Invalid email or password.");
+        }
     }
 }
