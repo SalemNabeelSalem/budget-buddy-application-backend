@@ -1,19 +1,20 @@
 package isalem.dev.budget_buddy.configs;
 
+import isalem.dev.budget_buddy.security.JWTRequestFilter;
 import isalem.dev.budget_buddy.services.AppUserDetailsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.ProviderManager;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -25,6 +26,7 @@ import java.util.List;
 public class SecurityConfig {
 
     private final AppUserDetailsService appUserDetailsService;
+    private final JWTRequestFilter jwtRequestFilter;
 
     /*
      * ✔️ Declares a Spring bean:
@@ -70,6 +72,10 @@ public class SecurityConfig {
                         session -> session.sessionCreationPolicy( // Set session creation policy to stateless
                                 SessionCreationPolicy.STATELESS // Do not create or use HTTP sessions
                         )
+                )
+                .addFilterBefore( // Add the JWTRequestFilter before the UsernamePasswordAuthenticationFilter
+                        jwtRequestFilter, // The filter that processes JWT tokens
+                        UsernamePasswordAuthenticationFilter.class // The filter before which the JWTRequestFilter should be added
                 );
 
         return http.build();
@@ -96,6 +102,7 @@ public class SecurityConfig {
          return source;
     }
 
+    /*
     @Bean
     public AuthenticationManager authenticationManager() {
         DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
@@ -105,5 +112,11 @@ public class SecurityConfig {
         authenticationProvider.setPasswordEncoder(passwordEncoder());
 
         return new ProviderManager(authenticationProvider);
+    }
+    **/
+
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+        return config.getAuthenticationManager();
     }
 }

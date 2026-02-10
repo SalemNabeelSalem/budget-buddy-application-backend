@@ -35,6 +35,7 @@ public class ProfileService {
     private final JWTUtil jwtUtil;
 
     public ProfileDTO registerNewProfile(ProfileDTO profileDTO) {
+
         ProfileEntity newProfileEntity = toProfileEntity(profileDTO);
 
         newProfileEntity.setActivationToken(UUID.randomUUID().toString());
@@ -153,7 +154,7 @@ public class ProfileService {
     }
 
     public ProfileDTO getCurrentPublicProfile(String email) {
-        ProfileEntity currentProfile = null;
+        ProfileEntity currentProfile;
 
         if (email == null || email.isEmpty()) {
             currentProfile = getCurrentProfile();
