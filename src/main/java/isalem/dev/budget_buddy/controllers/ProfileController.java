@@ -11,8 +11,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 
 @RestController()
-@RequestMapping("/profiles")
 @RequiredArgsConstructor
+@RequestMapping("/profile")
 public class ProfileController {
 
     private final ProfileService profileService;

@@ -45,7 +45,7 @@ public class ProfileService {
         /*
          * Send activation email to the user with the activation token.
          **/
-        String activationLink = "http://localhost:8080/api/v1.0/profiles/activate?token=" + newProfileEntity.getActivationToken();
+        String activationLink = "http://localhost:8080/api/v1.0/profile/activate?token=" + newProfileEntity.getActivationToken();
 
         String emailSubject = "Activate Your Budget Buddy Profile";
 
@@ -186,5 +186,10 @@ public class ProfileService {
         } catch (Exception e) {
             throw new RuntimeException("Invalid email or password.");
         }
+    }
+
+    public ProfileEntity getProfileEntityById(Long profileId) {
+        return profileRepository.findById(profileId)
+                .orElseThrow(() -> new RuntimeException("Profile not found with id: " + profileId));
     }
 }

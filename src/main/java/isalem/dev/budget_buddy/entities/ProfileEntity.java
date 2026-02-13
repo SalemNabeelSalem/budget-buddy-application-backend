@@ -13,9 +13,9 @@ import java.time.LocalDateTime;
 @Entity // Marks this class as a JPA entity
 @Table(name = "tbl_profiles") // Specifies the table name in the database
 @Data // Lombok annotation to generate getters, setters, toString, equals, and hashCode methods
-@AllArgsConstructor // Lombok annotation to generate a constructor with all fields as parameters
-@NoArgsConstructor // Lombok annotation to generate a no-argument constructor
 @Builder // Lombok annotation to implement the builder pattern for this class
+@NoArgsConstructor // Lombok annotation to generate a no-argument constructor
+@AllArgsConstructor // Lombok annotation to generate a constructor with all fields as parameters
 public class ProfileEntity {
 
     @Id // Primary key
@@ -31,8 +31,8 @@ public class ProfileEntity {
 
     private String profileImageUrl;
 
-    @Column(updatable = false) // Prevents the createdAt field from being updated after it's set
     @CreationTimestamp // Automatically sets the timestamp when the entity is created
+    @Column(updatable = false) // Prevents the createdAt field from being updated after it's set
     private LocalDateTime createdAt;
 
     @UpdateTimestamp // Automatically updates the timestamp whenever the entity is updated

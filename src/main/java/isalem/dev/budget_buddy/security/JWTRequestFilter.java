@@ -21,8 +21,8 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class JWTRequestFilter extends OncePerRequestFilter {
 
-
     private final UserDetailsService userDetailsService;
+
     private final JWTUtil jwtUtil;
 
     @Override
