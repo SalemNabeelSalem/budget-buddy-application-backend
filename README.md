@@ -1,0 +1,70 @@
+![Spring Boot](data:image/png;base64,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)
+
+# Budget Buddy Application
+
+A concise, production-ready Spring Boot application scaffold with Maven for building, testing, and running.
+
+## Features
+- REST API starter with Spring Boot
+- Configuration via `application.properties` / `application.yml`
+- Unit and integration test setup (JUnit + Mockito)
+- Maven build and lifecycle scripts
+
+## Tech Stack
+- Java 17+
+- Spring Boot
+- Maven
+- JUnit 5
+
+## Prerequisites
+- Java 17 or later
+- Maven 3.6+
+- Git
+
+## Quick Start
+
+1. Clone the repo
+   ```bash
+   git clone https://github.com/SalemNabeelSalem/your-repo.git
+   cd your-repo
+
+2. Build
+   ```bash
+   mvn clean package
+   ```
+
+3. Run (development)
+   ```bash
+   mvn spring-boot:run
+   ```
+
+4. Run (jar)
+   ```bash
+   java -jar target/*.jar
+   ```
+
+## Running Tests
+```bash
+mvn test
+```
+
+## Configuration
+- Application properties live in `src/main/resources/application.properties` (or `application.yml`)
+- Use profiles: `-Dspring.profiles.active=dev` or set the `SPRING_PROFILES_ACTIVE` environment variable
+
+
+## Project Structure
+- `src/main/java` — application code
+- `src/main/resources` — config and static resources
+- `src/test/java` — tests
+- `pom.xml` — Maven build file
+
+## Contributing
+- Fork the repo, create a feature branch, open a PR.
+- Keep commit messages clear and tests green.
+
+## License
+Specify your license in `LICENSE`.
+
+## Author
+GitHub `SalemNabeelSalem`.
