@@ -17,17 +17,17 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class ProfileDTO {
 
-    private Long id;
+    private Long id; // from ProfileEntity
 
-    private String fullName;
+    private String fullName; // from ProfileEntity
 
-    private String email;
+    private String email; // from ProfileEntity
 
-    private String password;
+    private String password; // from ProfileEntity - only used for registration, should be null when retrieving profile
 
-    private String profileImageUrl;
+    private String profileImageUrl; // from ProfileEntity
 
-    private LocalDateTime createdAt;
+    private LocalDateTime createdAt; // from ProfileEntity
 
-    private LocalDateTime updatedAt;
+    private LocalDateTime updatedAt; // from ProfileEntity
 }

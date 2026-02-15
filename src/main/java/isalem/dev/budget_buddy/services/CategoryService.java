@@ -5,8 +5,6 @@ import isalem.dev.budget_buddy.entities.CategoryEntity;
 import isalem.dev.budget_buddy.entities.CategoryType;
 import isalem.dev.budget_buddy.entities.ProfileEntity;
 import isalem.dev.budget_buddy.repositories.CategoryRepository;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -21,9 +19,6 @@ public class CategoryService {
     private final CategoryRepository categoryRepository;
 
     private final ProfileService profileService;
-
-    @Enumerated(EnumType.STRING)
-    private CategoryType type;
 
     public CategoryDTO createNewCategoryForCurrentProfile(CategoryDTO categoryDTO) {
         ProfileEntity currentProfile = profileService.getCurrentProfile();
@@ -92,6 +87,13 @@ public class CategoryService {
         categoryEntity = categoryRepository.save(categoryEntity);
 
         return toCategoryDTO(categoryEntity);
+    }
+
+    public CategoryEntity getCategoryEntityByIdForCurrentProfile(Long categoryId) {
+        ProfileEntity currentProfile = profileService.getCurrentProfile();
+
+        return categoryRepository.findByIdAndProfileId(categoryId, currentProfile.getId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "category not found for the current profile."));
     }
 
     private CategoryEntity toCategoryEntity(CategoryDTO categoryDTO, ProfileEntity profileEntity) {

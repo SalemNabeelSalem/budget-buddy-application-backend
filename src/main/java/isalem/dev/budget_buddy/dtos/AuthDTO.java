@@ -15,9 +15,9 @@ import lombok.NoArgsConstructor;
  **/
 public class AuthDTO {
 
-    private String email;
+    private String email; // from ProfileEntity
 
-    private String password;
+    private String password; // from ProfileEntity
 
-    private String token;
+    private String token; // JWT token generated upon successful authentication
 }

@@ -9,13 +9,13 @@ public interface ProfileRepository extends JpaRepository <ProfileEntity, Long> {
 
     /*
      * Finds a profile by email.
-     * select * from tbl_profiles where email = ?
+     * select * from tbl_profiles where email = ?1
      */
     Optional<ProfileEntity> findByEmail(String email);
 
     /*
      * Finds a profile by activation token.
-     * select * from tbl_profiles where activation_token = ?
+     * select * from tbl_profiles where activation_token = ?2
      */
     Optional<ProfileEntity> findByActivationToken(String activationToken);
 }

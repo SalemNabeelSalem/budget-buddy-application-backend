@@ -17,17 +17,17 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class CategoryDTO {
 
-    private Long id;
+    private Long id; // from CategoryEntity
 
-    private Long profileId;
+    private Long profileId; // from CategoryEntity -> ProfileEntity
 
-    private String name;
+    private String name; // from CategoryEntity
 
-    private String icon;
+    private String icon; // from CategoryEntity
 
-    private String type;
+    private String type; // from CategoryEntity
 
-    private LocalDateTime createdDate;
+    private LocalDateTime createdDate; // from CategoryEntity
 
-    private LocalDateTime updatedDate;
+    private LocalDateTime updatedDate; // from CategoryEntity
 }
