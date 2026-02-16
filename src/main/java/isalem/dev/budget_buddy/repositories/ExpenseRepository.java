@@ -24,12 +24,6 @@ public interface ExpenseRepository extends JpaRepository<ExpenseEntity, Long> {
     List<ExpenseEntity> findByProfileIdAndDateBetweenOrderByDateDesc(Long profileId, LocalDate startDate, LocalDate endDate);
 
     /*
-     * Finds the top 5 expenses by profile id ordered by date descending.
-     * select * from tbl_expenses where profile_id = ?1 order by date desc limit 5
-     */
-    // List<ExpenseEntity> findTop5ByProfileIdOrderByDateDesc(Long profileId);
-
-    /*
      * Finds all expenses by profile id and date between start date and end date containing name ignoring case.
      * select * from tbl_expenses where profile_id = ?1 and date between ?2 and ?3 and name like %?4%
      */
@@ -39,6 +33,12 @@ public interface ExpenseRepository extends JpaRepository<ExpenseEntity, Long> {
             LocalDate endDate,
             String name
     );
+
+    /*
+     * Finds the top 5 expenses by profile id ordered by date descending.
+     * select * from tbl_expenses where profile_id = ?1 order by date desc limit 5
+     */
+    List<ExpenseEntity> findTop5ByProfileIdOrderByDateDesc(Long profileId);
 
     /*
      * Finds the total expenses by profile id.

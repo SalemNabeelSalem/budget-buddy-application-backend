@@ -58,8 +58,26 @@ public class ExpenseController {
         return ResponseEntity.status(HttpStatus.OK).body(expenses);
     }
 
+    @GetMapping("/top5")
+    public ResponseEntity<List<ExpenseDTO>> findTop5ExpensesForCurrentProfileSortedByDateDesc() {
+        List<ExpenseDTO> expenses = expenseService.getTop5ExpensesForCurrentProfileSortedByDateDesc();
+
+        return ResponseEntity.status(HttpStatus.OK).body(expenses);
+    }
+
     @GetMapping("/total")
     public ResponseEntity<BigDecimal> findTotalExpensesForCurrentProfile() {
         return ResponseEntity.status(HttpStatus.OK).body(expenseService.getTotalExpensesForCurrentProfile());
+    }
+
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<?> deleteExpenseByIdForCurrentProfile(@PathVariable Long id) {
+        try {
+            expenseService.deleteExpenseByIdForCurrentProfile(id);
+
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        } catch (ResponseStatusException ex) {
+            return ResponseEntity.status(ex.getStatusCode()).body(ex.getReason());
+        }
     }
 }

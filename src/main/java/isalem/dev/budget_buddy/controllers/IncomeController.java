@@ -42,7 +42,25 @@ public class IncomeController {
             @RequestParam(required = false) LocalDate startDate,
             @RequestParam(required = false) LocalDate endDate
     ) {
-        List<IncomeDTO> incomes = incomeService.getAllIncomesForCurrentProfileByDateRangeSortedByDateDesc(startDate, endDate);
+        List<IncomeDTO> incomes = incomeService.getIncomesForCurrentProfile(null, startDate, endDate);
+
+        return ResponseEntity.status(HttpStatus.OK).body(incomes);
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<IncomeDTO>> searchIncomesForCurrentProfileByNameAndDateRangeSortedByDateDesc(
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) LocalDate startDate,
+            @RequestParam(required = false) LocalDate endDate
+    ) {
+        List<IncomeDTO> incomes = incomeService.getIncomesForCurrentProfile(name, startDate, endDate);
+
+        return ResponseEntity.status(HttpStatus.OK).body(incomes);
+    }
+
+    @GetMapping("/top5")
+    public ResponseEntity<List<IncomeDTO>> findTop5IncomesForCurrentProfileSortedByDateDesc() {
+        List<IncomeDTO> incomes = incomeService.getTop5IncomesForCurrentProfileSortedByDateDesc();
 
         return ResponseEntity.status(HttpStatus.OK).body(incomes);
     }
@@ -50,5 +68,16 @@ public class IncomeController {
     @GetMapping("/total")
     public ResponseEntity<BigDecimal> findTotalIncomesForCurrentProfile() {
         return ResponseEntity.status(HttpStatus.OK).body(incomeService.getTotalIncomesForCurrentProfile());
+    }
+
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<?> deleteIncomeByIdForCurrentProfile(@PathVariable Long id) {
+        try {
+            incomeService.deleteIncomeByIdForCurrentProfile(id);
+
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        } catch (ResponseStatusException ex) {
+            return ResponseEntity.status(ex.getStatusCode()).body(ex.getReason());
+        }
     }
 }

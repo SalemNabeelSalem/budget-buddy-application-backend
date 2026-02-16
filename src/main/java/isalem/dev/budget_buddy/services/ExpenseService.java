@@ -36,7 +36,7 @@ public class ExpenseService {
         categoryEntity = categoryService.getCategoryEntityByIdForCurrentProfile(expenseDTO.getCategoryId());
 
         if (!categoryEntity.getType().equals("expense")) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The specified category is not of type expense.");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "the specified category is not of type expense.");
         }
 
         ExpenseEntity newExpenseEntity = toExpenseEntity(expenseDTO, categoryEntity, currentProfile);
@@ -137,10 +137,35 @@ public class ExpenseService {
     }
     */
 
+    public List<ExpenseDTO> getTop5ExpensesForCurrentProfileSortedByDateDesc() {
+        ProfileEntity currentProfile = profileService.getCurrentProfile();
+
+        List<ExpenseEntity> expenseEntities = expenseRepository.findTop5ByProfileIdOrderByDateDesc(currentProfile.getId());
+
+        return expenseEntities.stream()
+                .map(this::toExpenseDTO)
+                .toList();
+    }
+
     public BigDecimal getTotalExpensesForCurrentProfile() {
         ProfileEntity currentProfile = profileService.getCurrentProfile();
 
-        return expenseRepository.findTotalExpensesByProfileId(currentProfile.getId());
+        BigDecimal total = expenseRepository.findTotalExpensesByProfileId(currentProfile.getId());
+
+        return total != null ? total : BigDecimal.ZERO;
+    }
+
+    public void deleteExpenseByIdForCurrentProfile(Long expenseId) {
+        ProfileEntity currentProfile = profileService.getCurrentProfile();
+
+        ExpenseEntity expenseEntity = expenseRepository.findById(expenseId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "expense not found with id: " + expenseId));
+
+        if (!expenseEntity.getProfile().getId().equals(currentProfile.getId())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "you are not unauthorized to delete this expense.");
+        }
+
+        expenseRepository.delete(expenseEntity);
     }
 
     private ExpenseEntity toExpenseEntity(ExpenseDTO expenseDTO, CategoryEntity categoryEntity, ProfileEntity profileEntity) {

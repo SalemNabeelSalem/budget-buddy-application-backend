@@ -24,7 +24,7 @@ public class CategoryService {
         ProfileEntity currentProfile = profileService.getCurrentProfile();
 
         if (categoryRepository.existsByNameAndProfileId(categoryDTO.getName(), currentProfile.getId())) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Category with the same name already exists for this profile.");
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "category with the same name already exists for this profile.");
         }
 
         CategoryEntity newCategoryEntity = toCategoryEntity(categoryDTO, currentProfile);
@@ -58,26 +58,26 @@ public class CategoryService {
         ProfileEntity currentProfile = profileService.getCurrentProfile();
 
         CategoryEntity categoryEntity = categoryRepository.findByIdAndProfileId(categoryId, currentProfile.getId())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Category not found for the current profile."));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "category not found for the current profile."));
 
         // Optional, extra safeguard to ensure the category belongs to the current profile, even though we already query by profile id.
         if (!categoryEntity.getProfile().getId().equals(currentProfile.getId())) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You do not have permission to update this category.");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "you do not have permission to update this category.");
         }
 
         if (!categoryEntity.getName().equals(categoryDTO.getName()) &&
                 categoryRepository.existsByNameAndProfileId(categoryDTO.getName(), currentProfile.getId())) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Category with the same name already exists for this profile.");
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "category with the same name already exists for this profile.");
         }
 
         if (categoryDTO.getType() == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Category type is required.");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "category type is required.");
         }
 
         try {
             CategoryType.valueOf(categoryDTO.getType().toUpperCase());
         } catch (IllegalArgumentException ex) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid category type. Allowed: expense, income");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "invalid category type. Allowed: expense, income");
         }
 
         categoryEntity.setName(categoryDTO.getName());
