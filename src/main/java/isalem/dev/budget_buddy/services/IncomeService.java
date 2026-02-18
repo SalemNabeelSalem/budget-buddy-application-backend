@@ -6,6 +6,7 @@ import isalem.dev.budget_buddy.entities.IncomeEntity;
 import isalem.dev.budget_buddy.entities.ProfileEntity;
 import isalem.dev.budget_buddy.repositories.IncomeRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -56,7 +57,7 @@ public class IncomeService {
                 .toList();
     }
 
-    public List<IncomeDTO> getIncomesForCurrentProfile(String name, LocalDate startDate, LocalDate endDate) {
+    public List<IncomeDTO> filterIncomesForCurrentProfile(LocalDate startDate, LocalDate endDate, String name, Sort sort) {
         ProfileEntity currentProfile = profileService.getCurrentProfile();
 
         LocalDate defaultStartDate = (startDate == null || startDate.toString().isEmpty())
@@ -67,7 +68,6 @@ public class IncomeService {
                 ? LocalDate.now().withDayOfMonth(LocalDate.now().lengthOfMonth())
                 : endDate;
 
-
         List<IncomeEntity> incomeEntities;
 
         if (name == null || name.isEmpty()) {
@@ -77,11 +77,12 @@ public class IncomeService {
                     defaultEndDate
             );
         } else {
-            incomeEntities = incomeRepository.findByProfileIdAndDateBetweenAndNameContainingIgnoreCaseOrderByDateDesc(
+            incomeEntities = incomeRepository.findByProfileIdAndDateBetweenAndNameContainingIgnoreCase(
                     currentProfile.getId(),
                     defaultStartDate,
                     defaultEndDate,
-                    name
+                    name,
+                    sort
             );
         }
 
@@ -124,7 +125,7 @@ public class IncomeService {
             endDate = LocalDate.now().withDayOfMonth(LocalDate.now().lengthOfMonth());
         }
 
-        List<IncomeEntity> incomeEntities = incomeRepository.findByProfileIdAndDateBetweenAndNameContainingIgnoreCaseOrderByDateDesc(
+        List<IncomeEntity> incomeEntities = incomeRepository.findByProfileIdAndDateBetweenAndNameContainingIgnoreCase(
                 currentProfile.getId(),
                 startDate,
                 endDate,

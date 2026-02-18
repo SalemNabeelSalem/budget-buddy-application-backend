@@ -6,6 +6,7 @@ import isalem.dev.budget_buddy.entities.ExpenseEntity;
 import isalem.dev.budget_buddy.entities.ProfileEntity;
 import isalem.dev.budget_buddy.repositories.ExpenseRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -56,7 +57,7 @@ public class ExpenseService {
                 .toList();
     }
 
-    public List<ExpenseDTO> getExpensesForCurrentProfile(String name, LocalDate startDate, LocalDate endDate) {
+    public List<ExpenseDTO> filterExpensesForCurrentProfile(LocalDate startDate, LocalDate endDate, String name, Sort sort) {
         ProfileEntity currentProfile = profileService.getCurrentProfile();
 
         LocalDate defaultStartDate = (startDate == null || startDate.toString().isEmpty())
@@ -67,21 +68,21 @@ public class ExpenseService {
                 ? LocalDate.now().withDayOfMonth(LocalDate.now().lengthOfMonth())
                 : endDate;
 
-
         List<ExpenseEntity> expenseEntities;
 
-        if (name == null || name.isEmpty()) {
+        if (name == null && sort == null) {
             expenseEntities = expenseRepository.findByProfileIdAndDateBetweenOrderByDateDesc(
                     currentProfile.getId(),
                     defaultStartDate,
                     defaultEndDate
             );
         } else {
-            expenseEntities = expenseRepository.findByProfileIdAndDateBetweenAndNameContainingIgnoreCaseOrderByDateDesc(
+            expenseEntities = expenseRepository.findByProfileIdAndDateBetweenAndNameContainingIgnoreCase(
                     currentProfile.getId(),
                     defaultStartDate,
                     defaultEndDate,
-                    name
+                    name,
+                    sort
             );
         }
 
@@ -124,7 +125,7 @@ public class ExpenseService {
             endDate = LocalDate.now().withDayOfMonth(LocalDate.now().lengthOfMonth());
         }
 
-        List<ExpenseEntity> expenseEntities = expenseRepository.findByProfileIdAndDateBetweenAndNameContainingIgnoreCaseOrderByDateDesc(
+        List<ExpenseEntity> expenseEntities = expenseRepository.findByProfileIdAndDateBetweenAndNameContainingIgnoreCase(
                 currentProfile.getId(),
                 startDate,
                 endDate,

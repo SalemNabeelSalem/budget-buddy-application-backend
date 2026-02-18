@@ -42,18 +42,7 @@ public class IncomeController {
             @RequestParam(required = false) LocalDate startDate,
             @RequestParam(required = false) LocalDate endDate
     ) {
-        List<IncomeDTO> incomes = incomeService.getIncomesForCurrentProfile(null, startDate, endDate);
-
-        return ResponseEntity.status(HttpStatus.OK).body(incomes);
-    }
-
-    @GetMapping("/search")
-    public ResponseEntity<List<IncomeDTO>> searchIncomesForCurrentProfileByNameAndDateRangeSortedByDateDesc(
-            @RequestParam(required = false) String name,
-            @RequestParam(required = false) LocalDate startDate,
-            @RequestParam(required = false) LocalDate endDate
-    ) {
-        List<IncomeDTO> incomes = incomeService.getIncomesForCurrentProfile(name, startDate, endDate);
+        List<IncomeDTO> incomes = incomeService.filterIncomesForCurrentProfile(startDate, endDate, null, null);
 
         return ResponseEntity.status(HttpStatus.OK).body(incomes);
     }

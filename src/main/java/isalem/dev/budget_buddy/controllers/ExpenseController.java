@@ -42,18 +42,7 @@ public class ExpenseController {
             @RequestParam(required = false) LocalDate startDate,
             @RequestParam(required = false) LocalDate endDate
     ) {
-        List<ExpenseDTO> expenses = expenseService.getExpensesForCurrentProfile(null, startDate, endDate);
-
-        return ResponseEntity.status(HttpStatus.OK).body(expenses);
-    }
-
-    @GetMapping("/search")
-    public ResponseEntity<List<ExpenseDTO>> searchExpensesForCurrentProfileByNameAndDateRangeSortedByDateDesc(
-            @RequestParam(required = false) String name,
-            @RequestParam(required = false) LocalDate startDate,
-            @RequestParam(required = false) LocalDate endDate
-    ) {
-        List<ExpenseDTO> expenses = expenseService.getExpensesForCurrentProfile(name, startDate, endDate);
+        List<ExpenseDTO> expenses = expenseService.filterExpensesForCurrentProfile(startDate, endDate, null, null);
 
         return ResponseEntity.status(HttpStatus.OK).body(expenses);
     }
