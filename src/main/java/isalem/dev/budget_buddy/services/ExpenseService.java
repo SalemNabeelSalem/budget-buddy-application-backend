@@ -1,12 +1,14 @@
 package isalem.dev.budget_buddy.services;
 
 import isalem.dev.budget_buddy.dtos.ExpenseDTO;
+import isalem.dev.budget_buddy.dtos.FilterDTO;
 import isalem.dev.budget_buddy.entities.CategoryEntity;
 import isalem.dev.budget_buddy.entities.ExpenseEntity;
 import isalem.dev.budget_buddy.entities.ProfileEntity;
 import isalem.dev.budget_buddy.repositories.ExpenseRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -57,7 +59,52 @@ public class ExpenseService {
                 .toList();
     }
 
-    public List<ExpenseDTO> filterExpensesForCurrentProfile(LocalDate startDate, LocalDate endDate, String name, Sort sort) {
+    public List<ExpenseDTO> getTop5ExpensesForCurrentProfileSortedByDateDesc() {
+        ProfileEntity currentProfile = profileService.getCurrentProfile();
+
+        List<ExpenseEntity> expenseEntities = expenseRepository.findTop5ByProfileIdOrderByDateDesc(currentProfile.getId());
+
+        return expenseEntities.stream()
+                .map(this::toExpenseDTO)
+                .toList();
+    }
+
+    public List<ExpenseDTO> getFilteredExpensesForCurrentProfile(FilterDTO filterDTO) {
+        ProfileEntity currentProfile = profileService.getCurrentProfile();
+
+        Sort sort = filterDTO.getDirection().equalsIgnoreCase("desc")
+                ? Sort.by(filterDTO.getSortBy()).descending()
+                : Sort.by(filterDTO.getSortBy()).ascending();
+
+        Specification<ExpenseEntity> specification = (root, query, criteriaBuilder)
+                -> criteriaBuilder.conjunction();
+
+        // ensure we only get expenses for the current profile
+        specification = specification.and(specification)
+                .and((root, query, criteriaBuilder) ->
+                        criteriaBuilder.equal(root.get("profile").get("id"), currentProfile.getId())
+                );
+
+        // filter by name
+        if (filterDTO.getName() != null && !filterDTO.getName().isEmpty()) {
+            specification = specification.and((root, query, criteriaBuilder) ->
+                    criteriaBuilder.like(criteriaBuilder.lower(root.get("name")), "%" + filterDTO.getName().toLowerCase() + "%")
+            );
+        }
+
+        // filter by date range
+        if (filterDTO.getStartDate() != null && filterDTO.getEndDate() != null) {
+            specification = specification.and((root, query, criteriaBuilder) ->
+                    criteriaBuilder.between(root.get("date"), filterDTO.getStartDate(), filterDTO.getEndDate())
+            );
+        }
+
+        return expenseRepository.findAll(specification, sort).stream()
+                .map(this::toExpenseDTO)
+                .toList();
+    }
+
+    public List<ExpenseDTO> filterExpensesForCurrentProfile(LocalDate startDate, LocalDate endDate) {
         ProfileEntity currentProfile = profileService.getCurrentProfile();
 
         LocalDate defaultStartDate = (startDate == null || startDate.toString().isEmpty())
@@ -70,78 +117,11 @@ public class ExpenseService {
 
         List<ExpenseEntity> expenseEntities;
 
-        if (name == null && sort == null) {
-            expenseEntities = expenseRepository.findByProfileIdAndDateBetweenOrderByDateDesc(
-                    currentProfile.getId(),
-                    defaultStartDate,
-                    defaultEndDate
-            );
-        } else {
-            expenseEntities = expenseRepository.findByProfileIdAndDateBetweenAndNameContainingIgnoreCase(
-                    currentProfile.getId(),
-                    defaultStartDate,
-                    defaultEndDate,
-                    name,
-                    sort
-            );
-        }
-
-        return expenseEntities.stream()
-                .map(this::toExpenseDTO)
-                .toList();
-    }
-
-    /**
-    public List<ExpenseDTO> getExpensesForCurrentProfileByDateRangeSortedByDateDesc(LocalDate startDate, LocalDate endDate) {
-        ProfileEntity currentProfile = profileService.getCurrentProfile();
-
-        if (startDate == null || startDate.toString().isEmpty()) {
-            startDate = LocalDate.now().withDayOfMonth(1);
-        }
-
-        if (endDate == null || endDate.toString().isEmpty()) {
-            endDate = LocalDate.now().withDayOfMonth(LocalDate.now().lengthOfMonth());
-        }
-
-        List<ExpenseEntity> expenseEntities = expenseRepository.findByProfileIdAndDateBetweenOrderByDateDesc(
+        expenseEntities = expenseRepository.findByProfileIdAndDateBetweenOrderByDateDesc(
                 currentProfile.getId(),
-                startDate,
-                endDate
+                defaultStartDate,
+                defaultEndDate
         );
-
-        return expenseEntities.stream()
-                .map(this::toExpenseDTO)
-                .toList();
-    }
-
-    public List<ExpenseDTO> searchExpensesForCurrentProfileByNameAndDateRangeSortedByDateDesc(String name, LocalDate startDate, LocalDate endDate) {
-        ProfileEntity currentProfile = profileService.getCurrentProfile();
-
-        if (startDate == null || startDate.toString().isEmpty()) {
-            startDate = LocalDate.now().withDayOfMonth(1);
-        }
-
-        if (endDate == null || endDate.toString().isEmpty()) {
-            endDate = LocalDate.now().withDayOfMonth(LocalDate.now().lengthOfMonth());
-        }
-
-        List<ExpenseEntity> expenseEntities = expenseRepository.findByProfileIdAndDateBetweenAndNameContainingIgnoreCase(
-                currentProfile.getId(),
-                startDate,
-                endDate,
-                name
-        );
-
-        return expenseEntities.stream()
-                .map(this::toExpenseDTO)
-                .toList();
-    }
-    */
-
-    public List<ExpenseDTO> getTop5ExpensesForCurrentProfileSortedByDateDesc() {
-        ProfileEntity currentProfile = profileService.getCurrentProfile();
-
-        List<ExpenseEntity> expenseEntities = expenseRepository.findTop5ByProfileIdOrderByDateDesc(currentProfile.getId());
 
         return expenseEntities.stream()
                 .map(this::toExpenseDTO)

@@ -1,5 +1,6 @@
 package isalem.dev.budget_buddy.services;
 
+import isalem.dev.budget_buddy.dtos.FilterDTO;
 import isalem.dev.budget_buddy.dtos.IncomeDTO;
 import isalem.dev.budget_buddy.entities.CategoryEntity;
 import isalem.dev.budget_buddy.entities.IncomeEntity;
@@ -7,6 +8,7 @@ import isalem.dev.budget_buddy.entities.ProfileEntity;
 import isalem.dev.budget_buddy.repositories.IncomeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -57,7 +59,42 @@ public class IncomeService {
                 .toList();
     }
 
-    public List<IncomeDTO> filterIncomesForCurrentProfile(LocalDate startDate, LocalDate endDate, String name, Sort sort) {
+    public List<IncomeDTO> getFilteredIncomesForCurrentProfile(FilterDTO filterDTO) {
+        ProfileEntity currentProfile = profileService.getCurrentProfile();
+
+        Sort sort = filterDTO.getDirection().equalsIgnoreCase("desc")
+                ? Sort.by(filterDTO.getSortBy()).descending()
+                : Sort.by(filterDTO.getSortBy()).ascending();
+
+        Specification<IncomeEntity> specification = (root, query, criteriaBuilder)
+                -> criteriaBuilder.conjunction();
+
+        // ensure we only get expenses for the current profile
+        specification = specification.and(specification)
+                .and((root, query, criteriaBuilder) ->
+                        criteriaBuilder.equal(root.get("profile").get("id"), currentProfile.getId())
+                );
+
+        // filter by name
+        if (filterDTO.getName() != null && !filterDTO.getName().isEmpty()) {
+            specification = specification.and((root, query, criteriaBuilder) ->
+                    criteriaBuilder.like(criteriaBuilder.lower(root.get("name")), "%" + filterDTO.getName().toLowerCase() + "%")
+            );
+        }
+
+        // filter by date range
+        if (filterDTO.getStartDate() != null && filterDTO.getEndDate() != null) {
+            specification = specification.and((root, query, criteriaBuilder) ->
+                    criteriaBuilder.between(root.get("date"), filterDTO.getStartDate(), filterDTO.getEndDate())
+            );
+        }
+
+        return incomeRepository.findAll(specification, sort).stream()
+                .map(this::toIncomeDTO)
+                .toList();
+    }
+
+    public List<IncomeDTO> filterIncomesForCurrentProfile(LocalDate startDate, LocalDate endDate) {
         ProfileEntity currentProfile = profileService.getCurrentProfile();
 
         LocalDate defaultStartDate = (startDate == null || startDate.toString().isEmpty())
@@ -70,73 +107,16 @@ public class IncomeService {
 
         List<IncomeEntity> incomeEntities;
 
-        if (name == null || name.isEmpty()) {
-            incomeEntities = incomeRepository.findByProfileIdAndDateBetweenOrderByDateDesc(
-                    currentProfile.getId(),
-                    defaultStartDate,
-                    defaultEndDate
-            );
-        } else {
-            incomeEntities = incomeRepository.findByProfileIdAndDateBetweenAndNameContainingIgnoreCase(
-                    currentProfile.getId(),
-                    defaultStartDate,
-                    defaultEndDate,
-                    name,
-                    sort
-            );
-        }
-
-        return incomeEntities.stream()
-                .map(this::toIncomeDTO)
-                .toList();
-    }
-
-    /**
-    public List<IncomeDTO> getAllIncomesForCurrentProfileByDateRangeSortedByDateDesc(LocalDate startDate, LocalDate endDate) {
-        ProfileEntity currentProfile = profileService.getCurrentProfile();
-
-        if (startDate == null || startDate.toString().isEmpty()) {
-            startDate = LocalDate.now().withDayOfMonth(1);
-        }
-
-        if (endDate == null || endDate.toString().isEmpty()) {
-            endDate = LocalDate.now().withDayOfMonth(LocalDate.now().lengthOfMonth());
-        }
-
-        List<IncomeEntity> incomeEntities = incomeRepository.findByProfileIdAndDateBetweenOrderByDateDesc(
+        incomeEntities = incomeRepository.findByProfileIdAndDateBetweenOrderByDateDesc(
                 currentProfile.getId(),
-                startDate,
-                endDate
+                defaultStartDate,
+                defaultEndDate
         );
 
         return incomeEntities.stream()
                 .map(this::toIncomeDTO)
                 .toList();
     }
-
-    public List<IncomeDTO> searchIncomesForCurrentProfileByNameAndDateRangeSortedByDateDesc(String name, LocalDate startDate, LocalDate endDate) {
-        ProfileEntity currentProfile = profileService.getCurrentProfile();
-
-        if (startDate == null || startDate.toString().isEmpty()) {
-            startDate = LocalDate.now().withDayOfMonth(1);
-        }
-
-        if (endDate == null || endDate.toString().isEmpty()) {
-            endDate = LocalDate.now().withDayOfMonth(LocalDate.now().lengthOfMonth());
-        }
-
-        List<IncomeEntity> incomeEntities = incomeRepository.findByProfileIdAndDateBetweenAndNameContainingIgnoreCase(
-                currentProfile.getId(),
-                startDate,
-                endDate,
-                name
-        );
-
-        return incomeEntities.stream()
-                .map(this::toIncomeDTO)
-                .toList();
-    }
-    */
 
     public List<IncomeDTO> getTop5IncomesForCurrentProfileSortedByDateDesc() {
         ProfileEntity currentProfile = profileService.getCurrentProfile();

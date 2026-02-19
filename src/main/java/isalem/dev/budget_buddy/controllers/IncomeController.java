@@ -42,7 +42,7 @@ public class IncomeController {
             @RequestParam(required = false) LocalDate startDate,
             @RequestParam(required = false) LocalDate endDate
     ) {
-        List<IncomeDTO> incomes = incomeService.filterIncomesForCurrentProfile(startDate, endDate, null, null);
+        List<IncomeDTO> incomes = incomeService.filterIncomesForCurrentProfile(startDate, endDate);
 
         return ResponseEntity.status(HttpStatus.OK).body(incomes);
     }

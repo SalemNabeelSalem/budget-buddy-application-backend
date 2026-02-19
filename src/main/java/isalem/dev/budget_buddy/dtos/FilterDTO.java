@@ -15,13 +15,13 @@ public class FilterDTO {
 
     private String type; // "expense" or "income"
 
+    private String name; // to search in the name of the transaction
+
+    private String sortBy; // "date" or "amount" or "name"
+
     private LocalDate startDate;
 
     private LocalDate endDate;
 
-    private String keyword;
-
-    private String sortField; // "date" or "amount" or "name"
-
-    private String sortOrder; // "asc" or "desc"
+    private String direction; // "asc" or "desc"
 }

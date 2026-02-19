@@ -42,7 +42,7 @@ public class ExpenseController {
             @RequestParam(required = false) LocalDate startDate,
             @RequestParam(required = false) LocalDate endDate
     ) {
-        List<ExpenseDTO> expenses = expenseService.filterExpensesForCurrentProfile(startDate, endDate, null, null);
+        List<ExpenseDTO> expenses = expenseService.filterExpensesForCurrentProfile(startDate, endDate);
 
         return ResponseEntity.status(HttpStatus.OK).body(expenses);
     }
