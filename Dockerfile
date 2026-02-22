@@ -1,41 +1,36 @@
-# Stage 1: Build using Maven on JDK 21
-FROM eclipse-temurin:21-jdk-focal AS builder
+# Stage 1: Build using Maven with Temurin 21
+FROM maven:3.9.6-eclipse-temurin-21 AS builder
 WORKDIR /app
 
-# If you use the Maven Wrapper, copy it and .mvn first for caching
-COPY mvnw .
-COPY .mvn .mvn
-
-# Copy pom and download dependencies first to leverage Docker cache
+# Copy only the pom first to leverage Docker layer caching for dependencies
 COPY pom.xml .
 
-# If you have settings.xml or other build files, copy them here
+# If you use a settings.xml or .mvn directory, copy them here for reproducible builds
 # COPY settings.xml .
+# COPY .mvn .mvn
 
-# Make mvnw executable if present
-RUN if [ -f ./mvnw ]; then chmod +x ./mvnw; fi
+# Download dependencies to cache them
+RUN mvn -B -ntp dependency:go-offline
 
-# If mvnw exists use it, otherwise rely on system mvn (image includes mvn if you prefer maven:... base)
-# Run a dependency download step to cache dependencies
-RUN if [ -f ./mvnw ]; then ./mvnw -B -ntp dependency:go-offline; else mvn -B -ntp dependency:go-offline; fi
-
-# Copy the source code
+# Copy source and resources
 COPY src src
+# If you have other resources (e.g., application.yml), copy them too:
+# COPY src/main/resources src/main/resources
 
 # Build the project and skip tests to speed up image builds
-RUN if [ -f ./mvnw ]; then ./mvnw -B package -DskipTests; else mvn -B package -DskipTests; fi
+RUN mvn -B package -DskipTests -DskipITs
 
-# Stage 2: Runtime image using Temurin JRE 21
-FROM eclipse-temurin:21-jre-focal
+# Stage 2: Runtime image using Temurin JRE 21 (jammy)
+FROM eclipse-temurin:21-jre-jammy
 WORKDIR /app
 
-# Copy the built jar from the builder stage. Use a glob to avoid hardcoding artifact name.
+# Copy the built jar from the builder stage. Uses a glob to avoid hardcoding artifact name.
 COPY --from=builder /app/target/*.jar app.jar
 
-# Expose the application port
-EXPOSE 8080
+# Expose the application port (adjust if your app uses a different port)
+EXPOSE 9090
 
-# Recommended: run as non-root user (optional)
+# Optional: run as non-root user (uncomment if desired)
 # RUN addgroup --system app && adduser --system --ingroup app app
 # USER app
 
