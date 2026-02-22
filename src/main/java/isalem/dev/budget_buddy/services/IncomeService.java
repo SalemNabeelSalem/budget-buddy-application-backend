@@ -1,8 +1,10 @@
 package isalem.dev.budget_buddy.services;
 
+import isalem.dev.budget_buddy.dtos.ExpenseDTO;
 import isalem.dev.budget_buddy.dtos.FilterDTO;
 import isalem.dev.budget_buddy.dtos.IncomeDTO;
 import isalem.dev.budget_buddy.entities.CategoryEntity;
+import isalem.dev.budget_buddy.entities.ExpenseEntity;
 import isalem.dev.budget_buddy.entities.IncomeEntity;
 import isalem.dev.budget_buddy.entities.ProfileEntity;
 import isalem.dev.budget_buddy.repositories.IncomeRepository;
@@ -53,6 +55,16 @@ public class IncomeService {
         ProfileEntity currentProfile = profileService.getCurrentProfile();
 
         List<IncomeEntity> incomeEntities = incomeRepository.findByProfileIdOrderByDateDesc(currentProfile.getId());
+
+        return incomeEntities.stream()
+                .map(this::toIncomeDTO)
+                .toList();
+    }
+
+    public List<IncomeDTO> getTop5IncomesForCurrentProfileSortedByDateDesc() {
+        ProfileEntity currentProfile = profileService.getCurrentProfile();
+
+        List<IncomeEntity> incomeEntities = incomeRepository.findTop5ByProfileIdOrderByDateDesc(currentProfile.getId());
 
         return incomeEntities.stream()
                 .map(this::toIncomeDTO)
@@ -118,16 +130,6 @@ public class IncomeService {
                 .toList();
     }
 
-    public List<IncomeDTO> getTop5IncomesForCurrentProfileSortedByDateDesc() {
-        ProfileEntity currentProfile = profileService.getCurrentProfile();
-
-        List<IncomeEntity> incomeEntities = incomeRepository.findTop5ByProfileIdOrderByDateDesc(currentProfile.getId());
-
-        return incomeEntities.stream()
-                .map(this::toIncomeDTO)
-                .toList();
-    }
-
     public BigDecimal getTotalIncomesForCurrentProfile() {
         ProfileEntity currentProfile = profileService.getCurrentProfile();
 
@@ -147,6 +149,14 @@ public class IncomeService {
         }
 
         incomeRepository.delete(incomeEntity);
+    }
+
+    public List<IncomeDTO> getIncomesByDateForCurrentProfile(Long profileId, LocalDate date) {
+        List<IncomeEntity> incomeEntities = incomeRepository.findByProfileIdAndDate(profileId, date);
+
+        return incomeEntities.stream()
+                .map(this::toIncomeDTO)
+                .toList();
     }
 
     private IncomeEntity toIncomeEntity(IncomeDTO incomeDTO, CategoryEntity categoryEntity, ProfileEntity profileEntity) {

@@ -149,6 +149,14 @@ public class ExpenseService {
         expenseRepository.delete(expenseEntity);
     }
 
+    public List<ExpenseDTO> getExpensesByDateForCurrentProfile(Long profileId, LocalDate date) {
+        List<ExpenseEntity> expenseEntities = expenseRepository.findByProfileIdAndDate(profileId, date);
+
+        return expenseEntities.stream()
+                .map(this::toExpenseDTO)
+                .toList();
+    }
+
     private ExpenseEntity toExpenseEntity(ExpenseDTO expenseDTO, CategoryEntity categoryEntity, ProfileEntity profileEntity) {
         return ExpenseEntity.builder()
                 .id(expenseDTO.getId())

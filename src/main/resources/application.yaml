@@ -28,3 +28,7 @@ server: # Server configuration
 
 jwt:
   secret: ${JWT_SECRET}
+
+budget-buddy:
+  frontend:
+    url: http://localhost:5173

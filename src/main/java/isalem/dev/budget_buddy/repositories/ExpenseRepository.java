@@ -36,4 +36,10 @@ public interface ExpenseRepository extends JpaRepository<ExpenseEntity, Long>, J
      */
     @Query("SELECT SUM(e.amount) FROM ExpenseEntity e WHERE e.profile.id = :profileId")
     BigDecimal findTotalExpensesByProfileId(@Param("profileId") Long profileId);
+
+    /*
+     * Finds all expenses by profile id and date.
+     * select * from tbl_expenses where profile_id = ?1 and date = ?2
+     */
+    List<ExpenseEntity> findByProfileIdAndDate(Long profileId, LocalDate date);
 }
