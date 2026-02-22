@@ -1,14 +1,14 @@
+#
 # Build Stage
-FROM maven:3.8.6-openjdk-17 AS build
-WORKDIR /app
-COPY pom.xml .
-COPY src ./src
-RUN mvn -B -DskipTests package
+#
+FROM maven:3.8.3-openjdk-17 AS build
+COPY . .
+RUN mvn clean install
 
-# Run Stage
+#
+# Package Stage
+#
 FROM eclipse-temurin:17-jdk
-WORKDIR /app
-COPY --from=build /app/target/*.jar budget-buddy-v1.0.jar
-ENV JAVA_OPTS=""
+COPY --from=build /target/demo-0.0.1-SNAPSHOT.jar budget-buddy-v1.0.jar
 EXPOSE 8080
-ENTRYPOINT ["sh","-c","java $JAVA_OPTS -jar /app/budget-buddy-v1.0.jar"]
+ENTRYPOINT ["java", "-jar", "budget-buddy-v1.0.jar"]
