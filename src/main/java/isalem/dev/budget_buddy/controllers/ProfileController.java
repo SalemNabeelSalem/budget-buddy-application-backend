@@ -29,9 +29,9 @@ public class ProfileController {
         boolean activationResult = profileService.activateProfile(token);
 
         if (activationResult) {
-            return ResponseEntity.status(HttpStatus.ACCEPTED).body("Profile activated successfully.");
+            return ResponseEntity.status(HttpStatus.ACCEPTED).body("profile activated successfully.");
         } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Activation token not found or already used.");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("activation token not found or already used.");
         }
     }
 
@@ -42,7 +42,7 @@ public class ProfileController {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body(
                         Map.of(
                                 "message",
-                                "Profile is not activated. Please check your email for the activation link."
+                                "profile is not activated. please check your email for the activation link."
                         )
                 );
             } else {

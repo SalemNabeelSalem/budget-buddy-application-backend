@@ -25,8 +25,8 @@ public class NotificationService {
 
     private final EmailService emailService;
 
-    @Value("${budget-buddy.frontend.url}")
-    private String frontendUrl;
+    @Value("${budget-buddy.frontend.base-url}")
+    private String frontEndBaseUrl;
 
     // for testing purposes, runs every minute -> 0 * * * * *
     // runs every day at 10 PM Dubai time -> 0 0 22 * * *
@@ -38,7 +38,7 @@ public class NotificationService {
             String body = "Hi " + profile.getFullName() + ",<br><br>"
                     + "This is a friendly reminder to add your income and expenses for today in Budget Buddy. <br><br>"
                     + "Keeping track of your finances daily can help you stay on top of your budget and achieve your financial goals.<br><br>"
-                    + "<a href="+frontendUrl+" style='display:inline-block;padding:10px 20px;background-color:#4CAF50;color:#fff;text-decoration:none;border-radius:5px;font-weight:bold;'>Go to Budget Buddy</a>"
+                    + "<a href="+ frontEndBaseUrl +" style='display:inline-block;padding:10px 20px;background-color:#4CAF50;color:#fff;text-decoration:none;border-radius:5px;font-weight:bold;'>Go to Budget Buddy</a>"
                     + "<br><br>Best regards,<br>Budget Buddy Team❤️"
                     + "<br><br><small style='color: #888;'>This is an automated message, please do not reply.</small>"
                     + "<br><br><small style='color: #888;'>&copy; " + java.time.Year.now().getValue() + " Budget Buddy. All rights reserved.</small>";
@@ -89,7 +89,7 @@ public class NotificationService {
 
                 table.append("</table><br><br>");
                 table.append("Keep tracking your expenses daily to stay on top of your budget and achieve your financial goals.<br><br>");
-                table.append("<a href=").append(frontendUrl).append(" style='display:inline-block;padding:10px 20px;background-color:#4CAF50;color:#fff;text-decoration:none;border-radius:5px;font-weight:bold;'>Go to Budget Buddy</a>");
+                table.append("<a href=").append(frontEndBaseUrl).append(" style='display:inline-block;padding:10px 20px;background-color:#4CAF50;color:#fff;text-decoration:none;border-radius:5px;font-weight:bold;'>Go to Budget Buddy</a>");
                 table.append("<br><br>Best regards,<br>Budget Buddy Team❤️");
                 table.append("<br><br><small style='color: #888;'>This is an automated message, please do not reply.</small>");
                 table.append("<br><br><small style='color: #888;'>&copy; ").append(java.time.Year.now().getValue()).append(" Budget Buddy. All rights reserved.</small>");
@@ -141,7 +141,7 @@ public class NotificationService {
 
                 table.append("</table><br><br>");
                 table.append("Keep tracking your incomes daily to stay on top of your budget and achieve your financial goals.<br><br>");
-                table.append("<a href=").append(frontendUrl).append(" style='display:inline-block;padding:10px 20px;background-color:#4CAF50;color:#fff;text-decoration:none;border-radius:5px;font-weight:bold;'>Go to Budget Buddy</a>");
+                table.append("<a href=").append(frontEndBaseUrl).append(" style='display:inline-block;padding:10px 20px;background-color:#4CAF50;color:#fff;text-decoration:none;border-radius:5px;font-weight:bold;'>Go to Budget Buddy</a>");
                 table.append("<br><br>Best regards,<br>Budget Buddy Team❤️");
                 table.append("<br><br><small style='color: #888;'>This is an automated message, please do not reply.</small>");
                 table.append("<br><br><small style='color: #888;'>&copy; ").append(java.time.Year.now().getValue()).append(" Budget Buddy. All rights reserved.</small>");

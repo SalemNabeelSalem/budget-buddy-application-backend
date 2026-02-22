@@ -68,6 +68,13 @@
 			<scope>runtime</scope>
 		</dependency>
 
+		<!-- Connect to PostgreSQL database using the PostgreSQL JDBC driver. -->
+		<dependency>
+			<groupId>org.postgresql</groupId>
+			<artifactId>postgresql</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+
 		<!-- Java annotation library which helps to reduce boilerplate code. -->
 		<dependency>
 			<groupId>org.projectlombok</groupId>
@@ -99,11 +106,13 @@
 		</dependency>
 
 		<!-- Java library for working with Microsoft Excel files. -->
+		<!--
 		<dependency>
 			<groupId>org.apache.poi</groupId>
 			<artifactId>poi-ooxml</artifactId>
 			<version>5.5.0</version>
 		</dependency>
+		-->
 
 		<!--
 		<dependency>

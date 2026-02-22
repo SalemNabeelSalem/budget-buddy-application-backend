@@ -21,14 +21,19 @@ spring: # Spring Boot configuration
       mail.smtp.starttls.enable: true # Enable STARTTLS for secure email transmission
       mail.smtp.from: ${BREVO_FROM_EMAIL} # Default "from" email address
     protocol: smtp
+  profiles:
+    active: default # Active profile for the application (use "production" for production environment)
 
 server: # Server configuration
   servlet: # Servlet configuration
     context-path: /api/v1.0 # Base path for all API endpoints
+  port: 8080 # Server port
 
 jwt:
   secret: ${JWT_SECRET}
 
 budget-buddy:
   frontend:
-    url: http://localhost:5173
+    base-url: ${FRONT_END_BASE_URL}
+  backend:
+    base-url: ${BACK_END_BASE_URL}

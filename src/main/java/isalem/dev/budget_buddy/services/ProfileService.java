@@ -6,6 +6,7 @@ import isalem.dev.budget_buddy.entities.ProfileEntity;
 import isalem.dev.budget_buddy.repositories.ProfileRepository;
 import isalem.dev.budget_buddy.utils.JWTUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -35,6 +36,9 @@ public class ProfileService {
 
     private final JWTUtil jwtUtil;
 
+    @Value("${budget-buddy.backend.base-url}")
+    private String backendBaseUrl;
+
     public ProfileDTO registerNewProfile(ProfileDTO profileDTO) {
 
         ProfileEntity newProfileEntity = toProfileEntity(profileDTO);
@@ -46,7 +50,7 @@ public class ProfileService {
         /*
          * Send activation email to the user with the activation token.
          **/
-        String activationLink = "http://localhost:8080/api/v1.0/profile/activate?token=" + newProfileEntity.getActivationToken();
+        String activationLink = backendBaseUrl + "/api/v1.0/profile/activate?token=" + newProfileEntity.getActivationToken();
 
         String emailSubject = "Activate Your Budget Buddy Profile";
 
