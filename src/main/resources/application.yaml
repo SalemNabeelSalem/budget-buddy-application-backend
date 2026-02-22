@@ -22,7 +22,7 @@ spring: # Spring Boot configuration
       mail.smtp.from: ${BREVO_FROM_EMAIL} # Default "from" email address
     protocol: smtp
   profiles:
-    active: default # Active profile for the application (use "production" for production environment)
+    active: production # Active profile for the application (use "production" for production environment)
 
 server: # Server configuration
   servlet: # Servlet configuration
