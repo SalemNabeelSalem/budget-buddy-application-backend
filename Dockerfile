@@ -1,18 +1,12 @@
-# FROM eclipse-temurin:21-jre
-# WORKDIR /app
-# COPY target/demo-0.0.1-SNAPSHOT.jar budget-buddy-v1.0.jar
-# EXPOSE 8080
-# ENTRYPOINT ["java", "-jar", "budget-buddy-v1.0.jar"]
-
 # Build Stage
-FROM maven:3.9.4-eclipse-temurin-20 AS build
+FROM maven:3.8.6-openjdk-17 AS build
 WORKDIR /app
 COPY pom.xml .
 COPY src ./src
 RUN mvn -B -DskipTests package
 
 # Run Stage
-FROM eclipse-temurin:20-jdk
+FROM eclipse-temurin:17-jdk
 WORKDIR /app
 COPY --from=build /app/target/*.jar budget-buddy-v1.0.jar
 ENV JAVA_OPTS=""
