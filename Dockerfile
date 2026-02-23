@@ -14,6 +14,7 @@ RUN mvn -B -ntp dependency:go-offline
 
 # Copy source and resources
 COPY src src
+
 # If you have other resources (e.g., application.yml), copy them too:
 # COPY src/main/resources src/main/resources
 
@@ -25,14 +26,14 @@ FROM eclipse-temurin:21-jre-jammy
 WORKDIR /app
 
 # Copy the built jar from the builder stage. Uses a glob to avoid hardcoding artifact name.
-COPY --from=builder /app/target/*.jar app.jar
+COPY --from=builder /app/target/*.jar budget-buddy-v1.0.jar
 
 # Expose the application port (adjust if your app uses a different port)
-EXPOSE 9090
+EXPOSE 8080
 
 # Optional: run as non-root user (uncomment if desired)
 # RUN addgroup --system app && adduser --system --ingroup app app
 # USER app
 
 # Start the Spring Boot application
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENTRYPOINT ["java", "-jar", "budget-buddy-v1.0.jar"]

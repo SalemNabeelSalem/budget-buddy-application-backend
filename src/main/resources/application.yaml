@@ -13,7 +13,7 @@ spring: # Spring Boot configuration
       hibernate.hibernate.format_sql : true # Format SQL statements for better readability
   mail:
     host: smtp-relay.brevo.com # SMTP server for sending emails
-    port: 587 # SMTP port
+    port: ${BREVO_PORT:587} # SMTP port
     username: ${BREVO_USERNAME} # SMTP username (use environment variable for security)
     password: ${BREVO_PASSWORD} # SMTP password (use environment variable for security)
     properties:
