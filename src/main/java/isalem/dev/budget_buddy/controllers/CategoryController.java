@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -24,7 +25,9 @@ public class CategoryController {
 
             return ResponseEntity.status(HttpStatus.CREATED).body(newCategory);
         } catch (ResponseStatusException ex) {
-            return ResponseEntity.status(ex.getStatusCode()).body(ex.getReason());
+            return ResponseEntity.status(ex.getStatusCode()).body(
+                    Map.of("message", ex.getReason() != null ? ex.getReason() : "")
+            );
         }
     }
 

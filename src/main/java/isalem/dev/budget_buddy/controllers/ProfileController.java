@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
-@RestController()
+@RestController
 @RequiredArgsConstructor
 @RequestMapping("/profile")
 public class ProfileController {
@@ -51,7 +51,14 @@ public class ProfileController {
                 return ResponseEntity.status(HttpStatus.OK).body(loginResponse);
             }
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", e.getMessage()));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", e.getMessage()));
         }
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<ProfileDTO> getCurrentProfile() {
+        ProfileDTO currentProfile = profileService.getCurrentPublicProfile(null);
+
+        return ResponseEntity.status(HttpStatus.OK).body(currentProfile);
     }
 }
