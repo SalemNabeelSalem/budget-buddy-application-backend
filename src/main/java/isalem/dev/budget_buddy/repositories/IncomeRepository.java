@@ -26,9 +26,13 @@ public interface IncomeRepository extends JpaRepository<IncomeEntity, Long>, Jpa
 
     /*
      * Finds the top 5 incomes by profile id ordered by date descending.
-     * select * from tbl_incomes where profile_id = ?1 order by date desc limit 5
+     * select * from tbl_incomes where profile_id = ?1 order by date desc limit ?2
      */
-    List<IncomeEntity> findTop5ByProfileIdOrderByDateDesc(Long profileId);
+    @Query(
+            value = "SELECT * FROM tbl_incomes WHERE profile_id = :profileId ORDER BY date DESC LIMIT :limit",
+            nativeQuery = true
+    )
+    List<IncomeEntity> findTopIncomes(@Param("profileId") Long profileId, @Param("limit") int limit);
 
     /*
      * Finds the total incomes by profile id.

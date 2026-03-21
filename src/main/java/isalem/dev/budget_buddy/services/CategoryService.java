@@ -23,6 +23,14 @@ public class CategoryService {
     public CategoryDTO createNewCategoryForCurrentProfile(CategoryDTO categoryDTO) {
         ProfileEntity currentProfile = profileService.getCurrentProfile();
 
+        if (!categoryDTO.getType().equalsIgnoreCase("income") && !categoryDTO.getType().equalsIgnoreCase("expense")) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "invalid category type. allowed: expense, income");
+        }
+
+        if (categoryDTO.getName() == null || categoryDTO.getName().trim().isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "category name is required.");
+        }
+
         if (categoryRepository.existsByNameAndProfileId(categoryDTO.getName(), currentProfile.getId())) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "category with the same name already exists for this profile.");
         }

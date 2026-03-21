@@ -1,10 +1,8 @@
 package isalem.dev.budget_buddy.services;
 
-import isalem.dev.budget_buddy.dtos.ExpenseDTO;
 import isalem.dev.budget_buddy.dtos.FilterDTO;
 import isalem.dev.budget_buddy.dtos.IncomeDTO;
 import isalem.dev.budget_buddy.entities.CategoryEntity;
-import isalem.dev.budget_buddy.entities.ExpenseEntity;
 import isalem.dev.budget_buddy.entities.IncomeEntity;
 import isalem.dev.budget_buddy.entities.ProfileEntity;
 import isalem.dev.budget_buddy.repositories.IncomeRepository;
@@ -61,10 +59,10 @@ public class IncomeService {
                 .toList();
     }
 
-    public List<IncomeDTO> getTop5IncomesForCurrentProfileSortedByDateDesc() {
+    public List<IncomeDTO> getTopIncomesForCurrentProfileSortedByDateDesc(int limit) {
         ProfileEntity currentProfile = profileService.getCurrentProfile();
 
-        List<IncomeEntity> incomeEntities = incomeRepository.findTop5ByProfileIdOrderByDateDesc(currentProfile.getId());
+        List<IncomeEntity> incomeEntities = incomeRepository.findTopIncomes(currentProfile.getId(), limit);
 
         return incomeEntities.stream()
                 .map(this::toIncomeDTO)
