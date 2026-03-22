@@ -8,7 +8,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
@@ -57,9 +56,28 @@ public class IncomeController {
         return ResponseEntity.status(HttpStatus.OK).body(incomes);
     }
 
+    // This endpoint generated the same result on the frontend side.
     @GetMapping("/summary/total")
-    public ResponseEntity<BigDecimal> findTotalIncomesForCurrentProfile() {
-        return ResponseEntity.status(HttpStatus.OK).body(incomeService.getTotalIncomesForCurrentProfile());
+    public ResponseEntity<?> findTotalIncomesForCurrentProfile() {
+        return ResponseEntity.status(HttpStatus.OK).body(
+                Map.of("totalIncomesAmount", incomeService.getTotalIncomesForCurrentProfile())
+        );
+    }
+
+    @PutMapping("/{income-id}")
+    public ResponseEntity<?> updateIncomeByIdForCurrentProfile(
+            @PathVariable("income-id") Long incomeId,
+            @RequestBody IncomeDTO incomeDTO
+    ) {
+        try {
+            IncomeDTO updatedIncome = incomeService.updateIncomeByIdForCurrentProfile(incomeId, incomeDTO);
+
+            return ResponseEntity.status(HttpStatus.OK).body(updatedIncome);
+        } catch (ResponseStatusException ex) {
+            return ResponseEntity.status(ex.getStatusCode()).body(
+                    Map.of("message", ex.getReason() != null ? ex.getReason() : "")
+            );
+        }
     }
 
     @DeleteMapping("/{income-id}")

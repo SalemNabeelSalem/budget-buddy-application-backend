@@ -1,6 +1,7 @@
 package isalem.dev.budget_buddy.repositories;
 
 import isalem.dev.budget_buddy.entities.IncomeEntity;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
@@ -28,11 +29,7 @@ public interface IncomeRepository extends JpaRepository<IncomeEntity, Long>, Jpa
      * Finds the top 5 incomes by profile id ordered by date descending.
      * select * from tbl_incomes where profile_id = ?1 order by date desc limit ?2
      */
-    @Query(
-            value = "SELECT * FROM tbl_incomes WHERE profile_id = :profileId ORDER BY date DESC LIMIT :limit",
-            nativeQuery = true
-    )
-    List<IncomeEntity> findTopIncomes(@Param("profileId") Long profileId, @Param("limit") int limit);
+    List<IncomeEntity> findByProfileIdOrderByDateDesc(Long profileId, Pageable pageable);
 
     /*
      * Finds the total incomes by profile id.

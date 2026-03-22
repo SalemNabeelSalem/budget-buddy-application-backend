@@ -7,6 +7,8 @@ import isalem.dev.budget_buddy.entities.IncomeEntity;
 import isalem.dev.budget_buddy.entities.ProfileEntity;
 import isalem.dev.budget_buddy.repositories.IncomeRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
@@ -62,9 +64,11 @@ public class IncomeService {
     public List<IncomeDTO> getTopIncomesForCurrentProfileSortedByDateDesc(int limit) {
         ProfileEntity currentProfile = profileService.getCurrentProfile();
 
-        List<IncomeEntity> incomeEntities = incomeRepository.findTopIncomes(currentProfile.getId(), limit);
+        Pageable pageable = PageRequest.of(0, limit, Sort.by("date").descending());
 
-        return incomeEntities.stream()
+        List<IncomeEntity> pagedIncomeEntities = incomeRepository.findByProfileIdOrderByDateDesc(currentProfile.getId(), pageable);
+
+        return pagedIncomeEntities.stream()
                 .map(this::toIncomeDTO)
                 .toList();
     }
@@ -134,6 +138,47 @@ public class IncomeService {
         BigDecimal total = incomeRepository.findTotalIncomesByProfileId(currentProfile.getId());
 
         return total != null ? total : BigDecimal.ZERO;
+    }
+
+    public IncomeDTO updateIncomeByIdForCurrentProfile(Long incomeId, IncomeDTO incomeDTO) {
+        ProfileEntity currentProfile = profileService.getCurrentProfile();
+
+        IncomeEntity incomeEntity = incomeRepository.findById(incomeId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "income not found with id: " + incomeId));
+
+        if (!incomeEntity.getProfile().getId().equals(currentProfile.getId())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "you are not unauthorized to update this income.");
+        }
+
+        CategoryEntity categoryEntity;
+
+        if (incomeDTO.getCategoryId() == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "category id is required.");
+        }
+
+        categoryEntity = categoryService.getCategoryEntityByIdForCurrentProfile(incomeDTO.getCategoryId());
+
+        if (!categoryEntity.getType().equals("income")) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "the specified category is not of type income.");
+        }
+
+        if (incomeDTO.getName() == null || incomeDTO.getName().trim().isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "income name is required.");
+        }
+
+        if (incomeDTO.getAmount() == null || incomeDTO.getAmount().compareTo(BigDecimal.ZERO) <= 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "income amount is required and must be greater than zero.");
+        }
+
+        incomeEntity.setName(incomeDTO.getName());
+        incomeEntity.setIcon(incomeDTO.getIcon());
+        incomeEntity.setDate(incomeDTO.getDate());
+        incomeEntity.setAmount(incomeDTO.getAmount());
+        incomeEntity.setCategory(categoryEntity);
+
+        incomeEntity = incomeRepository.save(incomeEntity);
+
+        return toIncomeDTO(incomeEntity);
     }
 
     public void deleteIncomeByIdForCurrentProfile(Long incomeId) {
