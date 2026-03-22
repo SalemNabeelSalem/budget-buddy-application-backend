@@ -19,7 +19,7 @@ public class ExpenseController {
 
     private final ExpenseService expenseService;
 
-    @PostMapping("/create")
+    @PostMapping
     public ResponseEntity<?> createNewExpenseForCurrentProfile(@RequestBody ExpenseDTO expenseDTO) {
         try {
             ExpenseDTO newExpense = expenseService.createNewExpenseForCurrentProfile(expenseDTO);
@@ -30,7 +30,7 @@ public class ExpenseController {
         }
     }
 
-    @GetMapping("/all")
+    @GetMapping
     public ResponseEntity<List<ExpenseDTO>> findAllExpensesForCurrentProfileSortedByDateDesc() {
         List<ExpenseDTO> expenses = expenseService.getAllExpensesForCurrentProfileSortedByDateDesc();
 

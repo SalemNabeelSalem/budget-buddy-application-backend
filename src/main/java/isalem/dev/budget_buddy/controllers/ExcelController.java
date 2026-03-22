@@ -13,23 +13,28 @@ import java.io.IOException;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/excel")
+@RequestMapping("/download")
 public class ExcelController {
 
     private final ExcelService excelService;
     private final IncomeService incomeService;
     private final ExpenseService expenseService;
 
-    @GetMapping("/incomes")
-    public void downloadIncomesAsExcel(HttpServletResponse response) {
+    @GetMapping("/excel-incomes")
+    public void downloadIncomesAsExcel(HttpServletResponse response) throws IOException {
         response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
 
         response.setHeader("Content-Disposition", "attachment; filename=incomes.xlsx");
 
-        try {
-            excelService.writeIncomesToExcel(response.getOutputStream(), incomeService.getAllIncomesForCurrentProfileSortedByDateDesc());
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to write Excel file", e);
-        }
+        excelService.writeIncomesToExcel(response.getOutputStream(), incomeService.getAllIncomesForCurrentProfileSortedByDateDesc());
+    }
+
+    @GetMapping("/excel-expenses")
+    public void downloadExpensesAsExcel(HttpServletResponse response) throws IOException {
+        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+
+        response.setHeader("Content-Disposition", "attachment; filename=expenses.xlsx");
+
+        excelService.writeExpensesToExcel(response.getOutputStream(), expenseService.getAllExpensesForCurrentProfileSortedByDateDesc());
     }
 }

@@ -35,7 +35,7 @@ public class EmailService {
     public void sendEmailWithAttachment(String to, String subject, String body, byte[] attachment, String fileName) {
         try {
             MimeMessage message = mailSender.createMimeMessage();
-            var helper = new MimeMessageHelper(message, true);
+            MimeMessageHelper helper = new MimeMessageHelper(message, true);
             helper.setFrom(fromEmail);
             helper.setTo(to);
             helper.setSubject(subject);

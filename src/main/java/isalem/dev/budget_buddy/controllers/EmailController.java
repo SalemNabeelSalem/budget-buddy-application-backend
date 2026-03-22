@@ -1,10 +1,7 @@
 package isalem.dev.budget_buddy.controllers;
 
 import isalem.dev.budget_buddy.entities.ProfileEntity;
-import isalem.dev.budget_buddy.services.EmailService;
-import isalem.dev.budget_buddy.services.ExcelService;
-import isalem.dev.budget_buddy.services.IncomeService;
-import isalem.dev.budget_buddy.services.ProfileService;
+import isalem.dev.budget_buddy.services.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -25,12 +23,12 @@ public class EmailController {
 
     private final IncomeService incomeService;
 
-    private final ExcelService expenseExcelService;
+    private final ExpenseService expenseService;
 
     private final ProfileService profileService;
 
-    @GetMapping("/incomes-excel")
-    public ResponseEntity<Void> sendEmailIncomesExcel() throws IOException {
+    @GetMapping("/excel-incomes")
+    public ResponseEntity<?> sendEmailIncomesExcel() throws IOException {
         ProfileEntity currentProfile = profileService.getCurrentProfile();
 
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -49,6 +47,33 @@ public class EmailController {
                 "incomes.xlsx"
         );
 
-        return ResponseEntity.status(200).build();
+        return ResponseEntity.status(200).body(
+                Map.of("message", "Incomes Excel report has been sent to your email successfully.")
+        );
+    }
+
+    @GetMapping("/excel-expenses")
+    public ResponseEntity<?> sendEmailExpensesExcel() throws IOException {
+        ProfileEntity currentProfile = profileService.getCurrentProfile();
+
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
+        excelService.writeExpensesToExcel(outputStream, expenseService.getAllExpensesForCurrentProfileSortedByDateDesc());
+
+        String emailBody = "<p>Dear " + currentProfile.getFullName() + ",</p>" +
+                "<p>Please find attached the Excel report of your expenses.</p>" +
+                "<p>Best regards,<br/>Budget Buddy Team</p>";
+
+        emailService.sendEmailWithAttachment(
+                currentProfile.getEmail(),
+                "Your Expenses Excel Report",
+                emailBody,
+                outputStream.toByteArray(),
+                "expenses.xlsx"
+        );
+
+        return ResponseEntity.status(200).body(
+                Map.of("message", "Expenses Excel report has been sent to your email successfully.")
+        );
     }
 }
