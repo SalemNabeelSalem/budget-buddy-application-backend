@@ -223,6 +223,7 @@ public class IncomeService {
                 .amount(incomeEntity.getAmount())
                 .categoryId(incomeEntity.getCategory() != null ? incomeEntity.getCategory().getId() : null)
                 .categoryName(incomeEntity.getCategory() != null ? incomeEntity.getCategory().getName() : "N/A")
+                .categoryType(incomeEntity.getCategory() != null ? incomeEntity.getCategory().getType() : "N/A")
                 .createdAt(incomeEntity.getCreatedAt())
                 .updatedAt(incomeEntity.getUpdatedAt())
                 .build();

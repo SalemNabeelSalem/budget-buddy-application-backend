@@ -29,6 +29,8 @@ public class ExpenseDTO {
 
     private String categoryName; // from ExpenseEntity -> CategoryEntity
 
+    private String categoryType; // from ExpenseEntity -> CategoryEntity
+
     private LocalDateTime createdAt; // from ExpenseEntity
 
     private LocalDateTime updatedAt; // from ExpenseEntity

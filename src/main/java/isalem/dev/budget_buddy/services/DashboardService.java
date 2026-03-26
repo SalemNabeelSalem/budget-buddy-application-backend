@@ -89,7 +89,7 @@ public class DashboardService {
     }
 
     private List<ExpenseDTO> loadLatestTop5Expenses() {
-        return expenseService.getTop5ExpensesForCurrentProfileSortedByDateDesc();
+        return expenseService.getTopExpensesForCurrentProfileSortedByDateDesc(5);
     }
 
     private List<IncomeDTO> loadLatestTop5Incomes() {

@@ -7,6 +7,8 @@ import isalem.dev.budget_buddy.entities.ExpenseEntity;
 import isalem.dev.budget_buddy.entities.ProfileEntity;
 import isalem.dev.budget_buddy.repositories.ExpenseRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
@@ -59,10 +61,12 @@ public class ExpenseService {
                 .toList();
     }
 
-    public List<ExpenseDTO> getTop5ExpensesForCurrentProfileSortedByDateDesc() {
+    public List<ExpenseDTO> getTopExpensesForCurrentProfileSortedByDateDesc(int limit) {
         ProfileEntity currentProfile = profileService.getCurrentProfile();
 
-        List<ExpenseEntity> expenseEntities = expenseRepository.findTop5ByProfileIdOrderByDateDesc(currentProfile.getId());
+        Pageable pageable = PageRequest.of(0, limit, Sort.by("date").descending());
+
+        List<ExpenseEntity> expenseEntities = expenseRepository.findByProfileIdOrderByDateDesc(currentProfile.getId(), pageable);
 
         return expenseEntities.stream()
                 .map(this::toExpenseDTO)
@@ -178,6 +182,7 @@ public class ExpenseService {
                 .amount(expenseEntity.getAmount())
                 .categoryId(expenseEntity.getCategory() != null ? expenseEntity.getCategory().getId() : null)
                 .categoryName(expenseEntity.getCategory() != null ? expenseEntity.getCategory().getName() : "N/A")
+                .categoryType(expenseEntity.getCategory() != null ? expenseEntity.getCategory().getType() : "N/A")
                 .createdAt(expenseEntity.getCreatedAt())
                 .updatedAt(expenseEntity.getUpdatedAt())
                 .build();

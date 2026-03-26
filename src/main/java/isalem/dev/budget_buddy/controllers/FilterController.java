@@ -7,6 +7,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/filters")
@@ -16,14 +18,16 @@ public class FilterController {
 
     private final IncomeService incomeService;
 
-    @PostMapping("/expenses")
-    public ResponseEntity<?> filterExpensesForCurrentProfile(@RequestBody FilterDTO filterDTO) {
-
-        return ResponseEntity.status(200).body(expenseService.getFilteredExpensesForCurrentProfile(filterDTO));
-    }
-
-    @PostMapping("/incomes")
-    public ResponseEntity<?> filterIncomesForCurrentProfile(@RequestBody FilterDTO filterDTO) {
-        return ResponseEntity.status(200).body(incomeService.getFilteredIncomesForCurrentProfile(filterDTO));
+    @PostMapping()
+    public ResponseEntity<?> filterExpensesAndIncomesForCurrentProfile(@RequestBody FilterDTO filterDTO) {
+        if (filterDTO.getType().equalsIgnoreCase("expense")) {
+            return ResponseEntity.status(200).body(expenseService.getFilteredExpensesForCurrentProfile(filterDTO));
+        } else if (filterDTO.getType().equalsIgnoreCase("income")) {
+            return ResponseEntity.status(200).body(incomeService.getFilteredIncomesForCurrentProfile(filterDTO));
+        } else {
+            return ResponseEntity.status(400).body(
+                    Map.of("message", "Invalid type. Type must be either 'expense' or 'income'.")
+            );
+        }
     }
 }

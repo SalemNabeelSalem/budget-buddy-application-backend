@@ -1,6 +1,7 @@
 package isalem.dev.budget_buddy.repositories;
 
 import isalem.dev.budget_buddy.entities.ExpenseEntity;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
@@ -26,9 +27,9 @@ public interface ExpenseRepository extends JpaRepository<ExpenseEntity, Long>, J
 
     /*
      * Finds the top 5 expenses by profile id ordered by date descending.
-     * select * from tbl_expenses where profile_id = ?1 order by date desc limit 5
+     * select * from tbl_expenses where profile_id = ?1 order by date desc limit ?2
      */
-    List<ExpenseEntity> findTop5ByProfileIdOrderByDateDesc(Long profileId);
+    List<ExpenseEntity> findByProfileIdOrderByDateDesc(Long profileId, Pageable pageable);
 
     /*
      * Finds the total expenses by profile id.

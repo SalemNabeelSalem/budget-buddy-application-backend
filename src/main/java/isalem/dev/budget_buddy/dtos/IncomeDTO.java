@@ -29,6 +29,8 @@ public class IncomeDTO {
 
     private String categoryName; // from IncomeEntity -> CategoryEntity
 
+    private String categoryType; // from IncomeEntity -> CategoryEntity
+
     private LocalDateTime createdAt; // from IncomeEntity
 
     private LocalDateTime updatedAt; // from IncomeEntity

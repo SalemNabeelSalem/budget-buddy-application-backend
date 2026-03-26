@@ -1,16 +1,16 @@
 spring:
   datasource:
-    url: jdbc:postgresql://${RENDER_DB_HOST}:${RENDER_DB_PORT}/${RENDER_DB_NAME}?sslmode=require
-    username: ${RENDER_DB_USERNAME}
-    password: ${RENDER_DB_PASSWORD}
+    url: jdbc:postgresql://${RAILWAY_DB_HOST}:${RAILWAY_DB_PORT}/${RAILWAY_DB_NAME}?sslmode=require
+    username: ${RAILWAY_DB_USERNAME}
+    password: ${RAILWAY_DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
     hikari:
-        maximum-pool-size: 10
-        minimum-idle: 2
-        idle-timeout: 30000
-        connection-timeout: 30000
-        max-lifetime: 1800000
-        pool-name: HikariCP
+      pool-name: HikariCP
+      maximum-pool-size: 10
+      minimum-idle: 2
+      idle-timeout: 30000
+      connection-timeout: 30000
+      max-lifetime: 1800000
   jpa:
     hibernate:
       ddl-auto: none # IMPORTANT: never use update/create in production.

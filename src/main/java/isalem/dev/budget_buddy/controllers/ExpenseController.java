@@ -8,9 +8,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -37,36 +37,43 @@ public class ExpenseController {
         return ResponseEntity.status(HttpStatus.OK).body(expenses);
     }
 
-    @GetMapping("/all-by-date-range")
+    @GetMapping("/filters")
     public ResponseEntity<List<ExpenseDTO>> findExpensesForCurrentProfileByDateRangeSortedByDateDesc(
-            @RequestParam(required = false) LocalDate startDate,
-            @RequestParam(required = false) LocalDate endDate
+            @RequestParam(name = "start-date", required = false) LocalDate startDate,
+            @RequestParam(name = "end-date", required = false) LocalDate endDate
     ) {
         List<ExpenseDTO> expenses = expenseService.filterExpensesForCurrentProfile(startDate, endDate);
 
         return ResponseEntity.status(HttpStatus.OK).body(expenses);
     }
 
-    @GetMapping("/top5")
-    public ResponseEntity<List<ExpenseDTO>> findTop5ExpensesForCurrentProfileSortedByDateDesc() {
-        List<ExpenseDTO> expenses = expenseService.getTop5ExpensesForCurrentProfileSortedByDateDesc();
+    @GetMapping("/top")
+    public ResponseEntity<List<ExpenseDTO>> findTopExpensesForCurrentProfileSortedByDateDesc(
+            @RequestParam(name = "limit", defaultValue = "5") int limit
+    ) {
+        List<ExpenseDTO> expenses = expenseService.getTopExpensesForCurrentProfileSortedByDateDesc(limit);
 
         return ResponseEntity.status(HttpStatus.OK).body(expenses);
     }
 
-    @GetMapping("/total")
-    public ResponseEntity<BigDecimal> findTotalExpensesForCurrentProfile() {
-        return ResponseEntity.status(HttpStatus.OK).body(expenseService.getTotalExpensesForCurrentProfile());
+    // This endpoint generated the same result on the frontend side.
+    @GetMapping("/summary/total")
+    public ResponseEntity<?> findTotalExpensesForCurrentProfile() {
+        return ResponseEntity.status(HttpStatus.OK).body(
+                Map.of("totalExpensesAmount", expenseService.getTotalExpensesForCurrentProfile())
+        );
     }
 
-    @DeleteMapping("/delete/{id}")
-    public ResponseEntity<?> deleteExpenseByIdForCurrentProfile(@PathVariable Long id) {
+    @DeleteMapping("/{expense-id}")
+    public ResponseEntity<?> deleteExpenseByIdForCurrentProfile(@PathVariable("expense-id") Long expenseId) {
         try {
-            expenseService.deleteExpenseByIdForCurrentProfile(id);
+            expenseService.deleteExpenseByIdForCurrentProfile(expenseId);
 
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
         } catch (ResponseStatusException ex) {
-            return ResponseEntity.status(ex.getStatusCode()).body(ex.getReason());
+            return ResponseEntity.status(ex.getStatusCode()).body(
+                    Map.of("message", ex.getReason() != null ? ex.getReason() : "")
+            );
         }
     }
 }
