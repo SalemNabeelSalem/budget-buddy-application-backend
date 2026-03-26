@@ -22,11 +22,11 @@ spring: # Spring Boot configuration
       mail.smtp.from: ${BREVO_FROM_EMAIL} # Default "from" email address
     protocol: smtp
   profiles:
-    active: production # Active profile for the application (use "production" for production environment)
+    active: production-railway-db # Active profile for the application (use "production" for production environment)
 
 server: # Server configuration
   servlet: # Servlet configuration
-    context-path: /api/v1.0 # Base path for all API endpoints
+    context-path: /api/v1 # Base path for all API endpoints
   port: 8080 # Server port
 
 jwt:

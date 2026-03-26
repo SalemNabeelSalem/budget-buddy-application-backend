@@ -50,7 +50,7 @@ public class ProfileService {
         /*
          * Send activation email to the user with the activation token.
          **/
-        String activationLink = backendBaseUrl + "/api/v1.0/profile/activate?token=" + newProfileEntity.getActivationToken();
+        String activationLink = backendBaseUrl + "/api/v1/profile/activate?token=" + newProfileEntity.getActivationToken();
 
         String emailSubject = "Activate Your Budget Buddy Profile";
 
