@@ -64,6 +64,22 @@ public class ExpenseController {
         );
     }
 
+    @PutMapping("/{expense-id}")
+    public ResponseEntity<?> updateExpenseByIdForCurrentProfile(
+            @PathVariable("expense-id") Long expenseId,
+            @RequestBody ExpenseDTO expenseDTO
+    ) {
+        try {
+            ExpenseDTO updatedExpense = expenseService.updateExpenseByIdForCurrentProfile(expenseId, expenseDTO);
+
+            return ResponseEntity.status(HttpStatus.OK).body(updatedExpense);
+        } catch (ResponseStatusException ex) {
+            return ResponseEntity.status(ex.getStatusCode()).body(
+                    Map.of("message", ex.getReason() != null ? ex.getReason() : "")
+            );
+        }
+    }
+
     @DeleteMapping("/{expense-id}")
     public ResponseEntity<?> deleteExpenseByIdForCurrentProfile(@PathVariable("expense-id") Long expenseId) {
         try {

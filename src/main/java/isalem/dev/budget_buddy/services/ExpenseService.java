@@ -140,6 +140,47 @@ public class ExpenseService {
         return total != null ? total : BigDecimal.ZERO;
     }
 
+    public ExpenseDTO updateExpenseByIdForCurrentProfile(Long expenseId, ExpenseDTO expenseDTO) {
+        ProfileEntity currentProfile = profileService.getCurrentProfile();
+
+        ExpenseEntity expenseEntity = expenseRepository.findById(expenseId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "expense not found with id: " + expenseId));
+
+        if (!expenseEntity.getProfile().getId().equals(currentProfile.getId())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "you are not unauthorized to update this expense.");
+        }
+
+        CategoryEntity categoryEntity;
+
+        if (expenseDTO.getCategoryId() == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "category id is required.");
+        }
+
+        categoryEntity = categoryService.getCategoryEntityByIdForCurrentProfile(expenseDTO.getCategoryId());
+
+        if (!categoryEntity.getType().equals("expense")) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "the specified category is not of type expense.");
+        }
+
+        if (expenseDTO.getName() != null && expenseDTO.getName().isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "expense name is required.");
+        }
+
+        if (expenseDTO.getAmount() != null && expenseDTO.getAmount().compareTo(BigDecimal.ZERO) < 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "expense amount is required and must be greater than zero.");
+        }
+
+        expenseEntity.setName(expenseDTO.getName());
+        expenseEntity.setIcon(expenseDTO.getIcon());
+        expenseEntity.setDate(expenseDTO.getDate());
+        expenseEntity.setAmount(expenseDTO.getAmount());
+        expenseEntity.setCategory(categoryEntity);
+
+        expenseEntity = expenseRepository.save(expenseEntity);
+
+        return toExpenseDTO(expenseEntity);
+    }
+
     public void deleteExpenseByIdForCurrentProfile(Long expenseId) {
         ProfileEntity currentProfile = profileService.getCurrentProfile();
 
