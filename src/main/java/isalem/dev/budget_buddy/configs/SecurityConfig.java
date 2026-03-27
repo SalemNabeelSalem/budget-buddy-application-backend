@@ -5,6 +5,8 @@ import isalem.dev.budget_buddy.services.AppUserDetailsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -21,6 +23,8 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.List;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 @Configuration
 @RequiredArgsConstructor
@@ -29,6 +33,9 @@ public class SecurityConfig {
     private final AppUserDetailsService appUserDetailsService;
 
     private final JWTRequestFilter jwtRequestFilter;
+
+    @Value("${budget-buddy.frontend.base-url:http://localhost:5173}")
+    private String frontendBaseUrl;
 
     /*
      * ✔️ Declares a Spring bean:
@@ -61,14 +68,17 @@ public class SecurityConfig {
                 .cors(Customizer.withDefaults()) // Enable CORS with default settings
                 .csrf(AbstractHttpConfigurer::disable) // Disable CSRF for stateless APIs
                 .authorizeHttpRequests( // Configure authorization rules
-                        auth -> auth.requestMatchers( // Allow unauthenticated access to specific endpoints
-                                "/status", // Health check endpoint
-                                "/health", // Another health check endpoint
-                                "/profile/register", // Endpoint for user registration
-                                "/profile/activate", // Endpoint for profile activation
-                                "/profile/login" // Endpoint for user login
-                        ).permitAll() // Allow unauthenticated access to the above endpoints
-                        .anyRequest().authenticated() // Require authentication for all other endpoints
+                        auth -> auth
+                                // Allow preflight CORS requests
+                                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                                .requestMatchers( // Allow unauthenticated access to specific endpoints
+                                        "/status", // Health check endpoint
+                                        "/health", // Another health check endpoint
+                                        "/profile/register", // Endpoint for user registration
+                                        "/profile/activate", // Endpoint for profile activation
+                                        "/profile/login" // Endpoint for user login
+                                ).permitAll() // Allow unauthenticated access to the above endpoints
+                                .anyRequest().authenticated() // Require authentication for all other endpoints
                 )
                 .sessionManagement( // Configure session management to be stateless
                         session -> session.sessionCreationPolicy( // Set session creation policy to stateless
@@ -83,26 +93,32 @@ public class SecurityConfig {
         return http.build();
     }
 
-     @Bean
-     public PasswordEncoder passwordEncoder() {
+    @Bean
+    public PasswordEncoder passwordEncoder() {
 
-         return new BCryptPasswordEncoder();
-     }
+        return new BCryptPasswordEncoder();
+    }
 
-     @Bean
-     public CorsConfigurationSource corsConfigurationSource() {
-         CorsConfiguration configuration = new CorsConfiguration(); // Create a new CORS configuration
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration(); // Create a new CORS configuration
 
-         configuration.setAllowedOrigins(List.of("http://localhost:5173")); // Allow all origins (you can specify your frontend URL here)
-         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS")); // Allow common HTTP methods
-         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "Accept")); // Allow common headers
-         configuration.setAllowCredentials(true); // Allow credentials (cookies, authorization headers)
+        // Parse frontendBaseUrl which can be a single origin or a comma-separated list of origins
+        List<String> allowedOrigins = Arrays.stream(frontendBaseUrl.split(","))
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .collect(Collectors.toList());
 
-         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource(); // Create a CORS configuration source
+        configuration.setAllowedOrigins(allowedOrigins); // Allowed frontend origin(s)
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH")); // Allow common HTTP methods
+        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "Accept", "X-Requested-With")); // Allow common headers
+        configuration.setAllowCredentials(true); // Allow credentials (cookies, authorization headers). Set to false if you don't use cookies.
 
-         source.registerCorsConfiguration("/**", configuration); // Apply CORS configuration to all endpoints
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource(); // Create a CORS configuration source
 
-         return source;
+        source.registerCorsConfiguration("/**", configuration); // Apply CORS configuration to all endpoints
+
+        return source;
     }
 
     @Bean
