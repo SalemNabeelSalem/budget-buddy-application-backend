@@ -13,12 +13,12 @@ import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/category")
+@RequestMapping("/categories")
 public class CategoryController {
 
     private final CategoryService categoryService;
 
-    @PostMapping("/create")
+    @PostMapping
     public ResponseEntity<?> createNewCategoryForCurrentProfile(@RequestBody CategoryDTO categoryDTO) {
         try {
             CategoryDTO newCategory = categoryService.createNewCategoryForCurrentProfile(categoryDTO);
@@ -43,9 +43,9 @@ public class CategoryController {
         return ResponseEntity.status(HttpStatus.OK).body(categories);
     }
 
-    @PutMapping("/{categoryId}")
+    @PutMapping("/{category-id}")
     public ResponseEntity<?> updateCategoryForCurrentProfile(
-            @PathVariable Long categoryId,
+            @PathVariable("category-id") Long categoryId,
             @RequestBody CategoryDTO categoryDTO
     ) {
         try {
