@@ -1,7 +1,3 @@
-Here’s a **clean, modern, and more professional restyled version** of your README (optimized for GitHub + recruiters + developers 👇):
-
----
-
 # 💰 Budget Buddy — Backend Application
 
 A **powerful and scalable RESTful API** built with **Spring Boot** that powers the *Budget Buddy* personal finance application.
