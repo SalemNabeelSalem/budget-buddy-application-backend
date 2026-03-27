@@ -1,4 +1,6 @@
 spring: # Spring Boot configuration
+  config:
+    import: optional:file:.env[.properties] # Import additional configuration from an optional .env or .properties file (useful for local development and environment variables)
   application: # Application configuration
     name: budget-buddy-backend-application # Name of the application
   datasource: # Database configuration

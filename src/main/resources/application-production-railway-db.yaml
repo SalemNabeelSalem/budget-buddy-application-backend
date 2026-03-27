@@ -1,4 +1,6 @@
 spring:
+  config:
+    import: optional:file:.env[.properties]
   datasource:
     url: jdbc:postgresql://${RAILWAY_DB_HOST}:${RAILWAY_DB_PORT}/${RAILWAY_DB_NAME}?sslmode=require
     username: ${RAILWAY_DB_USERNAME}
