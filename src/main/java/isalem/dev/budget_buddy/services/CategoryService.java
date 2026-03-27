@@ -5,6 +5,7 @@ import isalem.dev.budget_buddy.entities.CategoryEntity;
 import isalem.dev.budget_buddy.entities.CategoryType;
 import isalem.dev.budget_buddy.entities.ProfileEntity;
 import isalem.dev.budget_buddy.repositories.CategoryRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -13,6 +14,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.List;
 
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class CategoryService {
 

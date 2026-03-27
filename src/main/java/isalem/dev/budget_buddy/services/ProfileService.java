@@ -5,6 +5,7 @@ import isalem.dev.budget_buddy.dtos.ProfileDTO;
 import isalem.dev.budget_buddy.entities.ProfileEntity;
 import isalem.dev.budget_buddy.repositories.ProfileRepository;
 import isalem.dev.budget_buddy.utils.JWTUtil;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -22,7 +23,8 @@ import java.util.UUID;
 /*
  * Marks this class as a Spring service component, making it eligible for component scanning and dependency injection.
  */
-@Service //
+@Service
+@Transactional
 @RequiredArgsConstructor // Lombok annotation to generate a constructor with required arguments (final fields)
 public class ProfileService {
 

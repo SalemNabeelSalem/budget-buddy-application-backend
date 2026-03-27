@@ -4,6 +4,7 @@ import isalem.dev.budget_buddy.dtos.ExpenseDTO;
 import isalem.dev.budget_buddy.dtos.IncomeDTO;
 import isalem.dev.budget_buddy.dtos.RecentTransactionDTO;
 import isalem.dev.budget_buddy.entities.ProfileEntity;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -13,6 +14,7 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class DashboardService {
 
