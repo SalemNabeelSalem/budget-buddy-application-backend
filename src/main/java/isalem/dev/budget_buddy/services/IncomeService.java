@@ -6,6 +6,7 @@ import isalem.dev.budget_buddy.entities.CategoryEntity;
 import isalem.dev.budget_buddy.entities.IncomeEntity;
 import isalem.dev.budget_buddy.entities.ProfileEntity;
 import isalem.dev.budget_buddy.repositories.IncomeRepository;
+import jakarta.persistence.criteria.JoinType;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -83,7 +84,14 @@ public class IncomeService {
                 : Sort.by(filterDTO.getSortBy()).ascending();
 
         Specification<IncomeEntity> specification = (root, query, criteriaBuilder)
-                -> criteriaBuilder.conjunction();
+                -> {
+                    if (query != null) {
+                        root.fetch("category", JoinType.INNER);
+                        root.fetch("profile", JoinType.INNER);
+                        query.distinct(true);
+                    }
+                    return criteriaBuilder.conjunction();
+                };
 
         // ensure we only get expenses for the current profile
         specification = specification.and(specification)
@@ -145,7 +153,7 @@ public class IncomeService {
     public IncomeDTO updateIncomeByIdForCurrentProfile(Long incomeId, IncomeDTO incomeDTO) {
         ProfileEntity currentProfile = profileService.getCurrentProfile();
 
-        IncomeEntity incomeEntity = incomeRepository.findById(incomeId)
+        IncomeEntity incomeEntity = incomeRepository.findIncomeWithCategoryAndProfileById(incomeId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "income not found with id: " + incomeId));
 
         if (!incomeEntity.getProfile().getId().equals(currentProfile.getId())) {
@@ -186,7 +194,7 @@ public class IncomeService {
     public void deleteIncomeByIdForCurrentProfile(Long incomeId) {
         ProfileEntity currentProfile = profileService.getCurrentProfile();
 
-        IncomeEntity incomeEntity = incomeRepository.findById(incomeId)
+        IncomeEntity incomeEntity = incomeRepository.findIncomeWithCategoryAndProfileById(incomeId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "income not found with id: " + incomeId));
 
         if (!incomeEntity.getProfile().getId().equals(currentProfile.getId())) {

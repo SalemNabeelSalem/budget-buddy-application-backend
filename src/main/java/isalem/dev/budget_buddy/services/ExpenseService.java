@@ -6,6 +6,7 @@ import isalem.dev.budget_buddy.entities.CategoryEntity;
 import isalem.dev.budget_buddy.entities.ExpenseEntity;
 import isalem.dev.budget_buddy.entities.ProfileEntity;
 import isalem.dev.budget_buddy.repositories.ExpenseRepository;
+import jakarta.persistence.criteria.JoinType;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -83,7 +84,14 @@ public class ExpenseService {
                 : Sort.by(filterDTO.getSortBy()).ascending();
 
         Specification<ExpenseEntity> specification = (root, query, criteriaBuilder)
-                -> criteriaBuilder.conjunction();
+                -> {
+                    if (query != null) {
+                        root.fetch("category", JoinType.INNER);
+                        root.fetch("profile", JoinType.INNER);
+                        query.distinct(true);
+                    }
+                    return criteriaBuilder.conjunction();
+                };
 
         // ensure we only get expenses for the current profile
         specification = specification.and(specification)
@@ -145,7 +153,7 @@ public class ExpenseService {
     public ExpenseDTO updateExpenseByIdForCurrentProfile(Long expenseId, ExpenseDTO expenseDTO) {
         ProfileEntity currentProfile = profileService.getCurrentProfile();
 
-        ExpenseEntity expenseEntity = expenseRepository.findById(expenseId)
+        ExpenseEntity expenseEntity = expenseRepository.findExpenseWithCategoryAndProfileById(expenseId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "expense not found with id: " + expenseId));
 
         if (!expenseEntity.getProfile().getId().equals(currentProfile.getId())) {
@@ -186,7 +194,7 @@ public class ExpenseService {
     public void deleteExpenseByIdForCurrentProfile(Long expenseId) {
         ProfileEntity currentProfile = profileService.getCurrentProfile();
 
-        ExpenseEntity expenseEntity = expenseRepository.findById(expenseId)
+        ExpenseEntity expenseEntity = expenseRepository.findExpenseWithCategoryAndProfileById(expenseId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "expense not found with id: " + expenseId));
 
         if (!expenseEntity.getProfile().getId().equals(currentProfile.getId())) {
